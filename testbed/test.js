@@ -4,12 +4,14 @@ audio.io.initialize();
 
 // Create the master volume control and connect its output
 // "port" to the destination node.
-var volume = (new audio.io.VolumeControl( 'linear', 10 )).connect('out', audio.io.masterOut);
+var volume = (new audio.io.VolumeControl( 'x*x', 100 )).connect('out', audio.io.masterOut);
 
 
 // Create a single-shot sine osc at 150hz,
 // and connect it to the volume node above.
-var osc = new audio.io.MonoOscillator('sine', 150, 16);
+// Note that the 3rd argument here lets the class know to
+// create a volume control as well.
+var osc = new audio.io.MonoOscillator('sine', 150, 'x*x', 50);
 osc.connect('out', volume);
 
 // Put your hands up for Detroit...
@@ -25,24 +27,27 @@ setTimeout(function() {
 
 
 
-// Attempt to do the MIDI dance.
-var midi = new audio.io.MIDI();
+// Attempt to do the MIDI dance on channel 1,
+// with no event debugging.
+var midi = new audio.io.MIDI( 1, false );
 
 // Create a playable oscillator (not single-shot) and
 // allow it to have up to 16 voices, using a sine wave,
 // and set the retriggering argument to true.
 var playableOsc = new audio.io.Oscillator( 'sine', 16, true );
-
 playableOsc.connect('out', volume);
 
 midi.events.on('noteOn', function(channel, freq, velocity) {
 
 	freq = audio.io.utils.midiNoteToFreq( freq );
 
+	velocity = audio.io.utils.scaleNumber( velocity, 0, 127, 0, 100);
+
 	if(velocity === 0) {
 		playableOsc.stop( freq );
 	}
 	else {
+		volume.setVolume(velocity);
 		playableOsc.start( freq );
 	}
 });

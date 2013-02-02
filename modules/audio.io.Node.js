@@ -27,7 +27,7 @@ audio.io.Node.prototype.connect = function ( type, source ) {
 		isOutput = ~types.output.indexOf( type );
 
 	if ( !isInput && !isOutput ) {
-		console.log('Invalid input type of "' + type + '" supplied to `connect()`. ');
+		console.error('Invalid input type of "' + type + '" supplied to `connect()`. ');
 		return;
 	}
 
@@ -54,4 +54,4 @@ audio.io.Node.prototype.getPathToNode = function( node ) {
 };
 
 
-audio.io.Node.extend = window.Inheritance.extend;
+audio.io.Node.extend = window.extend;

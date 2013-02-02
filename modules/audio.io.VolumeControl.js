@@ -13,7 +13,7 @@ audio.io.VolumeControl = audio.io.Audio.extend({
 		this.setVolume( this.defaultValue );
 	},
 
-	onInputConnect: function() {
+	onInputConnect: function( source ) {
 		console.log('volume input connected', arguments);
 	},
 

@@ -2,7 +2,7 @@
 //        instances? E.g: create a throw-away osc instance, used
 //        when a note is triggered..?
 audio.io.MonoOscillator = audio.io.Audio.extend({
-	initialize: function(type, freq) {
+	initialize: function(type, freq, curve, level) {
 		var hasType = this._io.oscTypes.indexOf( type );
 
 		// Default to sine if invalid type provided.
@@ -15,11 +15,24 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		this.osc = this._io.context.createOscillator();
 		this.osc.type = this.type;
 		this.osc.frequency.value = this.freq;
+
+		this.hasVolume = !!(curve || level);
+
+		if(this.hasVolume) {
+			this.volumeControl = new this._io.VolumeControl( curve, level );
+			this.osc.connect(this.volumeControl.gain);
+		}
 	},
 
 	onOutputConnect: function( source ) {
 		var path = this.getPathToNode( source );
-		this.osc.connect( source[path] );
+
+		if(this.hasVolume) {
+			this.volumeControl.connect( 'out', source[path] );
+		}
+		else {
+			this.osc.connect( source[path] );
+		}
 	},
 
 	setType: function( type ) {
@@ -35,7 +48,11 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		this.osc.frequency.value = +freq || 440;
 	},
 
-	start: function( delay ) {
+	start: function( delay, level ) {
+		if(level && this.hasVolume) {
+			this.volumeControl.setVolume( level );
+		}
+
 		this.osc.noteOn( delay );
 	},
 	stop: function( delay ) {
@@ -43,15 +60,8 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 	}
 });
 
-
-
 // TODO: Ensure this Osc can be used for LFOs as well as noise generation
-// FIXME: Should this take care of polyphony and retriggering?
 //
-// FIXME: As it is below, this class is mostly incorrect. Why on earth
-//        I thought that setting the same pitch for all oscillator
-//        instances was the way forward is anyone's guess.
-//        Needs rewrite! It does make a noise, though... Baby steps...
 audio.io.Oscillator = audio.io.Audio.extend({
 	initialize: function( type, maxVoices, retrigger ) {
 		this.maxVoices = +maxVoices || 1;
