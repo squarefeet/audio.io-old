@@ -1,8 +1,6 @@
 audio.io.VolumeControl = audio.io.Audio.extend({
 
 	initialize: function( curve, defaultVolume ) {
-		console.log('volume initialize', arguments);
-
 		this.curve = ~this._io.curveTypes.indexOf(curve) ? curve : 'linear';
 		this.maxValue = 100;
 		this.minValue = 0;
@@ -19,7 +17,6 @@ audio.io.VolumeControl = audio.io.Audio.extend({
 
 	onOutputConnect: function( source ) {
 		this.gain.connect( source );
-		console.log('volume output connected', arguments);
 	},
 
 	setVolume: function( value ) {

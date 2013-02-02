@@ -3,17 +3,12 @@
 //        when a note is triggered..?
 audio.io.MonoOscillator = audio.io.Audio.extend({
 	initialize: function(type, freq, curve, level) {
-		var hasType = this._io.oscTypes.indexOf( type );
-
-		// Default to sine if invalid type provided.
-		this.type = ~hasType ? hasType : 1;
 
 		// Default to 440hz if none provided.
 		this.freq = +freq || 440;
 
 		// Create the oscillator.
 		this.osc = this._io.context.createOscillator();
-		this.osc.type = this.type;
 		this.osc.frequency.value = this.freq;
 
 		this.hasVolume = !!(curve || level);
@@ -22,6 +17,10 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 			this.volumeControl = new this._io.VolumeControl( curve, level );
 			this.osc.connect(this.volumeControl.gain);
 		}
+
+
+		// Default to sine if invalid type provided.
+		this.setType ( type );
 	},
 
 	onOutputConnect: function( source ) {
@@ -39,7 +38,7 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		var hasType = this._io.oscTypes.indexOf( type );
 
 		// Default to sine if invalid type provided.
-		this.type = ~hasType ? hasType : 1;
+		this.type = ~hasType ? hasType : 0;
 
 		this.osc.type = this.type;
 	},
@@ -63,13 +62,15 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 // TODO: Ensure this Osc can be used for LFOs as well as noise generation
 //
 audio.io.Oscillator = audio.io.Audio.extend({
-	initialize: function( type, maxVoices, retrigger ) {
+	initialize: function( type, maxVoices, retrigger, volumeCurve ) {
+		console.log(type);
 		this.maxVoices = +maxVoices || 1;
-
 		this.retrigger = !!retrigger;
+		this.volumeCurve = volumeCurve;
 
 		this.instances = {};
 		this.instanceOrder = [];
+
 
 		this.setType( type );
 	},
@@ -84,33 +85,18 @@ audio.io.Oscillator = audio.io.Audio.extend({
 	},
 
 	setType: function( type ) {
-		var hasType = this._io.oscTypes.indexOf( type ),
-			oscs;
-
-		// Default to sine if invalid type provided.
-		this.type = ~hasType ? hasType : 1;
-
-		if(this.instanceOrder.length) {
-			oscs = this.instances;
-
-			for(var i in this.instances) {
-				oscs[i].type = this.type;
-			}
-		}
+		// No need to do any checking here since we're now using MonoOscillator
+		// class when .start() is called.
+		this.type = type;
 	},
 
-	setFreq: function( osc, freq ) {
-		osc.frequency.value = +freq || 440;
-	},
+	start: function( freq, velocity, delay ) {
 
-	start: function( freq, delay ) {
-		var osc = this._io.context.createOscillator();
-		osc.type = this.type;
+		// Create a new instance of MonoOscillator.
+		var osc = new audio.io.MonoOscillator(this.type, freq, this.volumeCurve, velocity);
 
-		this.setFreq( osc, freq );
-
+		// Normalize delay argument
 		delay = +delay || 0;
-
 
 		// If we're already playing the maximum number of voices, stop
 		// an existing one.
@@ -134,15 +120,14 @@ audio.io.Oscillator = audio.io.Audio.extend({
 
 		// Connect osc to all available outputs.
 		for(var i = 0, il = this.outputs.length, path; i < il; ++i) {
-			path = this.getPathToNode( this.outputs[i] );
-			osc.connect( this.outputs[i][path] );
+			osc.connect( 'out', this.outputs[i] );
 		}
 
 		// Turn it on, baby!
-		osc.noteOn( delay );
+		osc.start( delay );
 	},
 
 	stop: function( freq, delay ) {
-		this.instances[ freq ].noteOff( +delay || 0 );
+		this.instances[ freq ].stop( +delay || 1 );
 	}
 });

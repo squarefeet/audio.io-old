@@ -4,7 +4,7 @@ audio.io.initialize();
 
 // Create the master volume control and connect its output
 // "port" to the destination node.
-var volume = (new audio.io.VolumeControl( 'x*x', 100 )).connect('out', audio.io.masterOut);
+var volume = (new audio.io.VolumeControl( 'x*x', 50 )).connect('out', audio.io.masterOut);
 
 
 // Create a single-shot sine osc at 150hz,
@@ -34,20 +34,17 @@ var midi = new audio.io.MIDI( 1, false );
 // Create a playable oscillator (not single-shot) and
 // allow it to have up to 16 voices, using a sine wave,
 // and set the retriggering argument to true.
-var playableOsc = new audio.io.Oscillator( 'sine', 16, true );
+var playableOsc = new audio.io.Oscillator( 'sine', 16, true, 'x*x' );
 playableOsc.connect('out', volume);
 
 midi.events.on('noteOn', function(channel, freq, velocity) {
 
 	freq = audio.io.utils.midiNoteToFreq( freq );
 
-	velocity = audio.io.utils.scaleNumber( velocity, 0, 127, 0, 100);
-
 	if(velocity === 0) {
 		playableOsc.stop( freq );
 	}
 	else {
-		volume.setVolume(velocity);
-		playableOsc.start( freq );
+		playableOsc.start( freq, velocity );
 	}
 });
