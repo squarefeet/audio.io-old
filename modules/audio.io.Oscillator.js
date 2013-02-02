@@ -12,9 +12,14 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		this.freq = +freq || 440;
 
 		// Create the oscillator.
-		this.osc = this._io.createOscillator();
+		this.osc = this._io.context.createOscillator();
 		this.osc.type = this.type;
 		this.osc.frequency.value = this.freq;
+	},
+
+	onOutputConnect: function( source ) {
+		var path = this.getPathToNode( source );
+		this.osc.connect( source[path] );
 	},
 
 	setType: function( type ) {

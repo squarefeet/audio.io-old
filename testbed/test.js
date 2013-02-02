@@ -9,7 +9,7 @@ var volume = (new audio.io.VolumeControl( 'linear', 50 )).connect('out', audio.i
 
 // Create a sine osc (current Oscillator class is crappy) at 150hz,
 // and connect it to the volume node above.
-var osc = new audio.io.Oscillator('sine', 150, 16);
+var osc = new audio.io.MonoOscillator('sine', 150, 16);
 osc.connect('out', volume);
 
 // Put your hands up for Detroit...

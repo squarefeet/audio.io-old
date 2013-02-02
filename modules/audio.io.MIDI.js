@@ -24,7 +24,7 @@
 // @requires WebMIDI || (Jazz-Plugin && WebMIDIAPIShim from @cwilso)
 //
 audio.io.MIDI = audio.io.Node.extend({
-	initialize: function() {
+	initialize: function( channel ) {
 
 		// Bind scope.
 		this.onAccessSuccess = this.onAccessSuccess.bind(this);
@@ -40,6 +40,8 @@ audio.io.MIDI = audio.io.Node.extend({
 		this.midi = null;
 		this.inputs = null;
 		this.outputs = null;
+
+		this.channel = +channel || 1;
 	},
 
 	onAccessSuccess: function( midi ) {
@@ -50,7 +52,7 @@ audio.io.MIDI = audio.io.Node.extend({
 		console.log('Found', this.inputs.length, 'MIDI inputs');
 
 		// For now just use 2nd input port (my axiom 25)
-		var input = this.midi.getInput(1);
+		var input = this.midi.getInput( this.channel );
 		input.onmessage = this.onInputMessage;
 	},
 
