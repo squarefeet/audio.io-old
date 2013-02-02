@@ -53,13 +53,15 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 //        instances was the way forward is anyone's guess.
 //        Needs rewrite! It does make a noise, though... Baby steps...
 audio.io.Oscillator = audio.io.Audio.extend({
-	initialize: function( type, freq, maxVoices, retrigger ) {
+	initialize: function( type, maxVoices, retrigger ) {
 		this.maxVoices = +maxVoices || 1;
 
-		this.instances = [];
+		this.retrigger = !!retrigger;
+
+		this.instances = {};
+		this.instanceOrder = [];
 
 		this.setType( type );
-		this.setFreq( freq );
 	},
 
 	onInputConnect: function() {},
@@ -78,63 +80,59 @@ audio.io.Oscillator = audio.io.Audio.extend({
 		// Default to sine if invalid type provided.
 		this.type = ~hasType ? hasType : 1;
 
-		if(this.instances.length) {
+		if(this.instanceOrder.length) {
 			oscs = this.instances;
 
-			for(var i = 0, il = oscs.length; i < il; ++i) {
+			for(var i in this.instances) {
 				oscs[i].type = this.type;
 			}
 		}
 	},
 
-	setFreq: function( freq ) {
-		var oscs;
-
-		this.freq = +freq
-
-		if(this.instances.length) {
-			oscs = this.instances;
-
-			for(var i = 0, il = oscs.length; i < il; ++i) {
-				oscs[i].frequency.value = this.freq;
-			}
-		}
+	setFreq: function( osc, freq ) {
+		osc.frequency.value = +freq || 440;
 	},
 
-	start: function() {
+	start: function( freq, delay ) {
 		var osc = this._io.context.createOscillator();
 		osc.type = this.type;
-		osc.frequency.value = this.freq;
+
+		this.setFreq( osc, freq );
+
+		delay = +delay || 0;
 
 
-		if(this.instances.length === this.maxVoices) {
-			// Create a new instance, but pop one off the end of this.instances.
-			osc.noteOn(0);
-			this.stop(this.instances[0]);
-			this.instances.push(osc);
+		// If we're already playing the maximum number of voices, stop
+		// an existing one.
+		if(Object.keys(this.instances).length === this.maxVoices) {
+			// Create a new instance, but pop one off the end of this.instances
+			// (i.e. the oldest note currently playing)
+			this.stop( this.instanceOrder.shift() );
 		}
-		else {
-			// Just create a new instance
-			osc.noteOn(0);
-			this.instances.push(osc);
+
+		// If a note of this frequency is already playing and retriggering is false
+		// stop the current instance.
+		else if(this.instances[freq] && this.retrigger) {
+			this.stop(freq);
 		}
 
 
-		var path = this.getPathToNode( this.outputs[0] );
-		osc.connect( this.outputs[0][path]);
+		// Store this osc
+		this.instances[freq] = osc;
+		this.instanceOrder.push(freq);
+
+
+		// Connect osc to all available outputs.
+		for(var i = 0, il = this.outputs.length, path; i < il; ++i) {
+			path = this.getPathToNode( this.outputs[i] );
+			osc.connect( this.outputs[i][path] );
+		}
+
+		// Turn it on, baby!
+		osc.noteOn( delay );
 	},
 
-	stop: function( instance ) {
-		if(!instance) {
-			this.instances.forEach(function(osc) {
-				osc.noteOff(0);
-			});
-		}
-		else if (instance instanceof this._io.Oscillator) {
-			instance.noteOff(0);
-		}
-		else if(typeof instance === 'number') {
-			this.instances[instance].noteOff(0);
-		}
+	stop: function( freq, delay ) {
+		this.instances[ freq ].noteOff( +delay || 0 );
 	}
 });

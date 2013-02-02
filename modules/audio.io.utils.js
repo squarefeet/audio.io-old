@@ -33,16 +33,18 @@ audio.io.utils = {
 	// received on.
 	//
 	// This little helper function will fetch the channel from
-	// the first byte for us.
+	// the first byte for us, as well as passing back a nice
+	// string of what the function is.
 	//
 	// Resource: http://www.midi.org/techspecs/midimessages.php
 	//
-	getChannelFromMIDIFunction: function( fn ) {
+	parseMIDIFunction: function( fn ) {
 		var channel;
 
 		// Note off
 		if(fn >= 128 && fn <= 143) {
 			channel = fn - 128;
+			fn = 'noteOff';
 		}
 
 		// Note on
@@ -53,39 +55,45 @@ audio.io.utils = {
 			// with 0 velocity rather than appear within the
 			// function range specified in the if clause above
 			// this one.
+			fn = 'noteOn';
 		}
 
 		// Polyphonic aftertouch
 		else if(fn >= 160 && fn <= 175) {
 			channel = fn - 160;
+			fn = 'polyAftertouch';
 		}
 
 		// Control/Mode change
 		else if(fn >= 176 && fn <= 191) {
 			// Seems to handle mod wheel
 			channel = fn - 176;
+			fn = 'controlChange';
 		}
 
 		// Program change
 		else if(fn >= 192 && fn <= 207) {
 			channel = fn - 192;
+			fn = 'programChange';
 		}
 
 		// Channel aftertouch
 		else if(fn >= 208 && fn <= 223) {
 			channel = fn - 208;
+			fn = 'channelAftertouch';
 		}
 
 		// Pitch wheel
 		else if(fn >= 224 && fn <= 239) {
 			channel = fn - 244;
+			fn = 'pitchbend';
 		}
 
 		else {
 			// FIXME: Handle unsupported MIDI function values
 		}
 
-		return channel;
+		return [fn, channel];
 	},
 
 

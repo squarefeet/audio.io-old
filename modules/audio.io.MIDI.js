@@ -42,6 +42,8 @@ audio.io.MIDI = audio.io.Node.extend({
 		this.outputs = null;
 
 		this.channel = +channel || 1;
+
+		this.events = new PubSub();
 	},
 
 	onAccessSuccess: function( midi ) {
@@ -54,6 +56,8 @@ audio.io.MIDI = audio.io.Node.extend({
 		// For now just use 2nd input port (my axiom 25)
 		var input = this.midi.getInput( this.channel );
 		input.onmessage = this.onInputMessage;
+
+		this.events.fire('connected:' + this.channel);
 	},
 
 	onAccessFailure: function( err ) {
@@ -66,9 +70,13 @@ audio.io.MIDI = audio.io.Node.extend({
 			byte2 = data[1],
 			byte3 = data[2],
 
-			channel = this._io.utils.getChannelFromMIDIFunction( fn );
+			details = this._io.utils.parseMIDIFunction( fn );
 
 
-		console.log(channel, byte2, byte3);
+
+		console.log(details, byte2, byte3);
+
+
+		this.events.fire(details[0], null, details[1], byte2, byte3);
 	}
 });
