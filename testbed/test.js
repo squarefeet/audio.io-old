@@ -11,7 +11,7 @@ var volume = (new audio.io.VolumeControl( 'x*x', 50 )).connect('out', audio.io.m
 // and connect it to the volume node above.
 // Note that the 3rd argument here lets the class know to
 // create a volume control as well.
-var osc = new audio.io.MonoOscillator('sine', 150, 'x*x', 50);
+var osc = new audio.io.MonoOscillator('square', 150, 'x*x', 50);
 osc.connect('out', volume);
 
 // Put your hands up for Detroit...
@@ -38,9 +38,6 @@ var playableOsc = new audio.io.Oscillator( 'sine', 2, true, 'x*x' );
 playableOsc.connect('out', volume);
 
 midi.events.on('noteOn', function(channel, freq, velocity) {
-
-	freq = audio.io.utils.midiNoteToFreq( freq );
-
 	if(velocity === 0) {
 		playableOsc.stop( freq );
 	}
