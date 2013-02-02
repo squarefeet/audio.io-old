@@ -34,7 +34,7 @@ var midi = new audio.io.MIDI( 1, false );
 // Create a playable oscillator (not single-shot) and
 // allow it to have up to 16 voices, using a sine wave,
 // and set the retriggering argument to true.
-var playableOsc = new audio.io.Oscillator( 'sine', 16, true, 'x*x' );
+var playableOsc = new audio.io.Oscillator( 'sine', 2, true, 'x*x' );
 playableOsc.connect('out', volume);
 
 midi.events.on('noteOn', function(channel, freq, velocity) {

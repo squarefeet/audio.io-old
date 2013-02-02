@@ -63,14 +63,12 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 //
 audio.io.Oscillator = audio.io.Audio.extend({
 	initialize: function( type, maxVoices, retrigger, volumeCurve ) {
-		console.log(type);
 		this.maxVoices = +maxVoices || 1;
 		this.retrigger = !!retrigger;
 		this.volumeCurve = volumeCurve;
 
 		this.instances = {};
 		this.instanceOrder = [];
-
 
 		this.setType( type );
 	},
@@ -100,7 +98,7 @@ audio.io.Oscillator = audio.io.Audio.extend({
 
 		// If we're already playing the maximum number of voices, stop
 		// an existing one.
-		if(Object.keys(this.instances).length === this.maxVoices) {
+		if(this.instanceOrder.length === this.maxVoices) {
 			// Create a new instance, but pop one off the end of this.instances
 			// (i.e. the oldest note currently playing)
 			this.stop( this.instanceOrder.shift() );
