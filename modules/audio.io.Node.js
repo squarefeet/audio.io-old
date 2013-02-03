@@ -47,6 +47,10 @@ audio.io.Node.prototype.connect = function ( type, source ) {
 	return this;
 };
 
+audio.io.Node.prototype.connectTo = function( source ) {
+	this.connect('out', source);
+};
+
 audio.io.Node.prototype.getPathToNode = function( node ) {
 	if(node instanceof this._io.VolumeControl) {
 		return 'gain';
