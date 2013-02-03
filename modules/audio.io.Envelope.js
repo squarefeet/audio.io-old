@@ -13,15 +13,12 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 
 		// Set level values
 		this.setSustainLevel( sustainLevel );
-
 		this.attackLevel = 1;
 
 		this.events = new PubSub({ debug: false });
 		this.events.on('start', this.start, this);
 
 		this.startTime = 0;
-
-		console.log(this.id);
 	},
 
 	onOutputConnect: function( source ) {
