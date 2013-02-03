@@ -1,6 +1,5 @@
-// FIXME: Use this as a base class when creating oscillator
-//        instances? E.g: create a throw-away osc instance, used
-//        when a note is triggered..?
+// A one-shot oscillator. Used by the main Oscillator class
+// to create noises.
 audio.io.MonoOscillator = audio.io.Audio.extend({
 	initialize: function(type, freq, curve, level) {
 
@@ -73,7 +72,6 @@ audio.io.Oscillator = audio.io.Audio.extend({
 		this.setType( type );
 	},
 
-	onInputConnect: function() {},
 	onOutputConnect: function( source ) {
 		var path = this.getPathToNode( source );
 
@@ -109,7 +107,6 @@ audio.io.Oscillator = audio.io.Audio.extend({
 		else if(this.instances[freq] && this.retrigger) {
 			this.stop(freq);
 		}
-
 
 		// Store this osc
 		this.instances[freq] = osc;

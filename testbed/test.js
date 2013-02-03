@@ -48,7 +48,8 @@ panpot.connect('out', volume);
 
 // Create a playable oscillator (not single-shot) and
 // allow it to have up to 16 voices, using a sine wave,
-// and set the retriggering argument to true.
+// and set the retriggering argument to true, and
+// volumeControl curve to x*x
 var playableOsc = new audio.io.Oscillator( 'sine', 16, true, 'x*x' );
 playableOsc.connect('out', panpot);
 

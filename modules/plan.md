@@ -68,9 +68,3 @@
 	* _Resource: http://www.softsynth.com/webaudio/gainramp.php_
 
 * **Oscillator Group**: _Nin -> _Freq (+- fine) -> Pan Pot -> Volume Control -> Envelope -> Out_
-
-
-
-
-
-
