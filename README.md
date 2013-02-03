@@ -50,3 +50,7 @@ midi.events.on('noteOn', function(channel, freq, velocity) {
 ```
 
 ----
+
+#### How to ####
+```git clone git@github.com:squarefeet/audio.io.git```
+Open ./audio.io/testbed/index.html in a WebAudio-compatible browser.
