@@ -8,6 +8,8 @@ audio.io.PanPot = audio.io.Audio.extend({
 		this.panner = this._io.context.createPanner();
 		this.panner.panningModel = 'equalPower';
 
+		this.position = [];
+
 		this.setPosition( defaultPosition );
 	},
 
@@ -31,10 +33,10 @@ audio.io.PanPot = audio.io.Audio.extend({
 			pos = 50;
 		}
 
-
-
-		this.position = [x, y, z];
-
+		// Reuse the same Array literal.
+		this.position[0] = x;
+		this.position[1] = y;
+		this.position[2] = z;
 
 		this.panner.setPosition(pos/50, y, z);
 	}
