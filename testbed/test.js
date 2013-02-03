@@ -31,11 +31,26 @@ setTimeout(function() {
 // with no event debugging.
 var midi = new audio.io.MIDI( 1, false );
 
+
+// Create a panpot
+var panpot = new audio.io.PanPot(0);
+
+// Listen to the `pitchbend` event from the MIDI node and scale the
+// input (0-127) to the panpot's accepted value range of -50 to 50.
+midi.events.on('pitchbend', function(channel, something, value) {
+	value = audio.io.utils.scaleNumber(value, 0, 127, -50, 50);
+
+	panpot.setPosition(value);
+});
+
+// Connect the panpot to master out
+panpot.connect('out', volume);
+
 // Create a playable oscillator (not single-shot) and
 // allow it to have up to 16 voices, using a sine wave,
 // and set the retriggering argument to true.
-var playableOsc = new audio.io.Oscillator( 'sine', 2, true, 'x*x' );
-playableOsc.connect('out', volume);
+var playableOsc = new audio.io.Oscillator( 'sine', 16, true, 'x*x' );
+playableOsc.connect('out', panpot);
 
 midi.events.on('noteOn', function(channel, freq, velocity) {
 	if(velocity === 0) {
@@ -45,3 +60,5 @@ midi.events.on('noteOn', function(channel, freq, velocity) {
 		playableOsc.start( freq, velocity );
 	}
 });
+
+

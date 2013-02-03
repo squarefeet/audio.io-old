@@ -85,7 +85,7 @@ audio.io.utils = {
 
 		// Pitch wheel
 		else if(fn >= 224 && fn <= 239) {
-			channel = fn - 244;
+			channel = fn - 224;
 			fn = 'pitchbend';
 		}
 

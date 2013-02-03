@@ -78,7 +78,7 @@ audio.io.Oscillator = audio.io.Audio.extend({
 		var path = this.getPathToNode( source );
 
 		if(this.instances.length) {
-			this.instances[i].connect( source[path] );
+			this.instances[i].connect( path ? source[path] : source );
 		}
 	},
 

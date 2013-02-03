@@ -51,6 +51,9 @@ audio.io.Node.prototype.getPathToNode = function( node ) {
 	if(node instanceof this._io.VolumeControl) {
 		return 'gain';
 	}
+	else if (node instanceof this._io.PanPot) {
+		return 'panner';
+	}
 };
 
 
