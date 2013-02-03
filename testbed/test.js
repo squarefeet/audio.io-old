@@ -7,9 +7,25 @@ audio.io.initialize();
 var volume = (new audio.io.VolumeControl( 'x*x', 50 )).connectTo(audio.io.masterOut);
 
 
+function onNoteOn(channel, freq, velocity) {
+	if(velocity === 0) {
+		playableOsc.stop( freq );
+	}
+	else {
+		playableOsc.start( freq, velocity );
+	}
+}
+
+
 // Attempt to do the MIDI dance on channel 1,
 // with no event debugging.
 var midi = new audio.io.MIDI( 1, false );
+midi.events.on('noteOn', onNoteOn);
+
+// Also hook up the computer keyboard, just incase
+// the MIDI above fails to connect.
+var keyboard = new audio.io.Keyboard();
+keyboard.events.on('noteOn', onNoteOn);
 
 
 // Create a panpot...
@@ -32,19 +48,15 @@ midi.events.on('pitchbend', function(channel, something, value) {
 var playableOsc = new audio.io.Oscillator( 'sine', 16, true, 'x*x' );
 playableOsc.connectTo(panpot);
 
-midi.events.on('noteOn', function(channel, freq, velocity) {
-	if(velocity === 0) {
-		playableOsc.stop( freq );
-	}
-	else {
-		playableOsc.start( freq, velocity );
-	}
-});
 
+
+
+// Create a new LFO instance and tell it to modulate the main volume control level
 var lfo = new audio.io.LFO( 'sine', 1 );
-
 lfo.connectTo( volume );
-
 lfo.start();
+
+
+
 
 

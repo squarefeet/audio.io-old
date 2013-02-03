@@ -12,6 +12,15 @@ audio.io = {
 
 	oscTypes: ['sine', 'square', 'sawtooth', 'triangle'],
 
+
+	keyboard: {
+		DOWN_OCTAVE: 	'Z',
+		UP_OCTAVE: 		'X',
+		DOWN_VEL: 		'C',
+		UP_VEL: 		'V',
+		notes: [ 'A', 'W', 'S', 'E', 'D', 'F', 'T', 'G', 'Y', 'H', 'U', 'J']
+	},
+
 	initialize: function() {
 		var context = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || false;
 

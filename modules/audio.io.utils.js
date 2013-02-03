@@ -105,5 +105,19 @@ audio.io.utils = {
 	//
 	scaleNumber: function(num, lowIn, highIn, lowOut, highOut) {
 		return ((num-lowIn) / (highIn-lowIn)) * (highOut-lowOut) + lowOut;
+	},
+
+
+	keyCodeToMIDINoteMap: {
+
+	},
+
+
+	getMIDINoteFromKey: function( key, octave ) {
+		var positionInScale = audio.io.keyboard.notes.indexOf(key);
+
+		if(positionInScale === -1) return null;
+
+		return positionInScale + (octave * 12);
 	}
 };

@@ -65,6 +65,7 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 
 		this.osc.noteOn( delay );
 	},
+
 	stop: function( delay, immediate ) {
 		var that = this;
 
@@ -79,7 +80,14 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 				that.osc.noteOff( delay );
 				that.envelope.events.off('stop');
 			});
-			this.envelope.stop();
+
+			// FIXME: Find out why this.envelope is sometimes undefined...
+			try {
+				this.envelope.stop();
+			} catch(e) {
+				console.error(e);
+				this.osc.noteOff( delay );
+			}
 		}
 	}
 });
