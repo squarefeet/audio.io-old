@@ -52,5 +52,8 @@ midi.events.on('noteOn', function(channel, freq, velocity) {
 ----
 
 #### How to ####
+Install the Jazz-Soft Jazz-Plugin: http://jazz-soft.net/
+
 ```git clone git@github.com:squarefeet/audio.io.git```
-Open ./audio.io/testbed/index.html in a WebAudio-compatible browser.
+
+Open ./audio.io/testbed/index.html in a WebAudio-compatible browser with a MIDI input device connected.

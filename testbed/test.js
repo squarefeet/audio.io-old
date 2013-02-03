@@ -43,7 +43,6 @@ midi.events.on('noteOn', function(channel, freq, velocity) {
 
 var lfo = new audio.io.LFO( 'sine', 1 );
 lfo.connectTo(volume.gain.gain);
-
 lfo.start();
 
 
