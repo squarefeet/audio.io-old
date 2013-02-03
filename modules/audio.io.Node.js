@@ -8,6 +8,8 @@ audio.io.Node = function () {
 	// because it's pointless.
 	this._io = audio.io;
 
+	this.id = Math.random() * 9827348 | 0;
+
 	if(typeof this.initialize === 'function') {
 		this.initialize.apply(this, arguments);
 	}
@@ -53,7 +55,7 @@ audio.io.Node.prototype.connectTo = function( source ) {
 };
 
 audio.io.Node.prototype.getPathToNode = function( node ) {
-	if(node instanceof this._io.VolumeControl) {
+	if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
 		return 'gain';
 	}
 	else if (node instanceof this._io.PanPot) {

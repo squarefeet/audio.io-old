@@ -15,19 +15,30 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 		this.setSustainLevel( sustainLevel );
 
 		this.attackLevel = 1;
+
+		this.events = new PubSub({ debug: false });
+		this.events.on('start', this.start, this);
+
+		this.startTime = 0;
+
+		console.log(this.id);
+	},
+
+	onOutputConnect: function( source ) {
+		this.gain.connect( source );
 	},
 
 	setAttackTime: function( value ) {
-		this.attackTime = +value || 0.1;
+		this.attackTime = +value || 1;
 	},
 	setDecayTime: function( value ) {
-		this.decayTime = +value || 0.2;
+		this.decayTime = +value || 0.4;
 	},
 	setReleaseTime: function( value ) {
 		this.releaseTime = +value || 1;
 	},
 	setSustainLevel: function( value ) {
-		this.sustainLevel = +value || 0.7;
+		this.sustainLevel = +value || 0.5;
 	},
 
 	set: function( param, value ) {
@@ -59,23 +70,45 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 		var now = this._io.context.currentTime,
 			gain = this.gain.gain;
 
+		this.startTime = now;
+
 		gain.cancelScheduledValues( now );
 
 		// Start the envelope at 0 volume
 		gain.setValueAtTime(0, now);
 
 		// Ramp up to full volume over attack duration.
-		gain.linearRampToValueAtTime(this.attackLevel, now + this.attack);
+		gain.linearRampToValueAtTime(this.attackLevel, now + this.attackTime);
 
 		// Ramp up or down to sustain level over decay duration
-		gain.linearRampToValueAtTime(this.sustainLevel, now + this.attack + this.decay);
+		gain.linearRampToValueAtTime(this.sustainLevel, now + this.attackTime + this.decayTime);
 	},
 
 	stop: function() {
 		var now = this._io.context.currentTime,
-			gain = this.gain.gain;
+			gain = this.gain.gain,
+			that = this,
 
-		gain.linearRampToValueAtTime(0, this.releaseTime);
+			envelopeLength = this.startTime + this.attackTime + this.decayTime;
+
+		// Turn off the note straight away if we've reached the end of the envelope
+		if(now > envelopeLength && this.sustainLevel === 0) {
+			that.events.fire('stop');
+			return;
+		}
+
+		// Stop any ramps set for the future if the note is released
+		// before the end of the envelope cycle.
+		else if(now < envelopeLength) {
+			gain.cancelScheduledValues( now+0.1 );
+			gain.setValueAtTime(gain.value, now);
+		}
+
+		gain.linearRampToValueAtTime(0, now + that.releaseTime);
+
+		setTimeout(function() {
+			that.events.fire('stop');
+		}, (this.releaseTime * 1000) + 1000);
 	}
 });
 
@@ -94,6 +127,11 @@ audio.io.Envelope = audio.io.BasicEnvelope.extend({
 		// Set level values
 		this.setAttackLevel( attackLevel );
 		this.setSustainLevel( sustainLevel );
+
+		this.events = new PubSub({ debug: false });
+		this.events.on('start', this.start, this);
+
+		this.startTime = 0;
 	},
 
 	setAttackLevel: function( value ) {

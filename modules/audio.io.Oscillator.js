@@ -1,7 +1,7 @@
 // A one-shot oscillator. Used by the main Oscillator class
 // to create noises.
 audio.io.MonoOscillator = audio.io.Audio.extend({
-	initialize: function(type, freq, curve, level) {
+	initialize: function(type, freq, curve, level, useEnvelope) {
 
 		// Default to 440hz if none provided.
 		this.freq = +freq || 440;
@@ -11,10 +11,16 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		this.osc.frequency.value = this.freq;
 
 		this.hasVolume = !!(curve || level);
+		this.useEnvelope = !!useEnvelope;
 
-		if(this.hasVolume) {
+
+		if(this.hasVolume && !this.useEnvelope) {
 			this.volumeControl = new this._io.VolumeControl( curve, level );
 			this.osc.connect(this.volumeControl.gain);
+		}
+		else if(this.hasVolume && this.useEnvelope) {
+			this.envelope = new audio.io.Envelope(null, level / 127);
+			this.osc.connect(this.envelope.gain);
 		}
 
 
@@ -25,11 +31,14 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 	onOutputConnect: function( source ) {
 		var path = this.getPathToNode( source );
 
-		if(this.hasVolume) {
-			this.volumeControl.connect( 'out', source[path] );
+		if(this.hasVolume && !this.useEnvelope) {
+			this.volumeControl.connectTo(source[path] );
+		}
+		else if(this.hasVolume && this.useEnvelope) {
+			this.envelope.connectTo( source[path] );
 		}
 		else {
-			this.osc.connect( source[path] );
+			this.osc.connect( path ? source[path] : source );
 		}
 	},
 
@@ -47,14 +56,31 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 	},
 
 	start: function( delay, level ) {
-		if(level && this.hasVolume) {
+		if(level && this.hasVolume && !this.useEnvelope) {
 			this.volumeControl.setVolume( level );
+		}
+		else if(this.useEnvelope) {
+			this.envelope.events.fire('start');
 		}
 
 		this.osc.noteOn( delay );
 	},
-	stop: function( delay ) {
-		this.osc.noteOff( delay );
+	stop: function( delay, immediate ) {
+		var that = this;
+
+		if(!this.useEnvelope) {
+			this.osc.noteOff( delay );
+		}
+		else if(immediate) {
+			this.osc.noteOff( delay );
+		}
+		else {
+			this.envelope.events.on('stop', function() {
+				that.osc.noteOff( delay );
+				that.envelope.events.off('stop');
+			});
+			this.envelope.stop();
+		}
 	}
 });
 
@@ -89,7 +115,7 @@ audio.io.Oscillator = audio.io.Audio.extend({
 	start: function( freq, velocity, delay ) {
 
 		// Create a new instance of MonoOscillator.
-		var osc = new audio.io.MonoOscillator(this.type, freq, this.volumeCurve, velocity);
+		var osc = new audio.io.MonoOscillator(this.type, freq, this.volumeCurve, velocity, true);
 
 		// Normalize delay argument
 		delay = +delay || 0;
@@ -105,7 +131,7 @@ audio.io.Oscillator = audio.io.Audio.extend({
 		// If a note of this frequency is already playing and retriggering is false
 		// stop the current instance.
 		else if(this.instances[freq] && this.retrigger) {
-			this.stop(freq);
+			this.stop(freq, 0, true);
 		}
 
 		// Store this osc
@@ -115,14 +141,14 @@ audio.io.Oscillator = audio.io.Audio.extend({
 
 		// Connect osc to all available outputs.
 		for(var i = 0, il = this.outputs.length, path; i < il; ++i) {
-			osc.connect( 'out', this.outputs[i] );
+			osc.connectTo( this.outputs[i] );
 		}
 
 		// Turn it on, baby!
 		osc.start( delay );
 	},
 
-	stop: function( freq, delay ) {
-		this.instances[ freq ].stop( +delay || 1 );
+	stop: function( freq, delay, immediate ) {
+		this.instances[ freq ].stop( +delay || 1, immediate );
 	}
 });
