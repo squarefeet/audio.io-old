@@ -23,7 +23,13 @@ audio.io.LFO = audio.io.Audio.extend({
 	onOutputConnect: function( source ) {
 		var path = this.getPathToNode( source );
 
+		console.log(source);
+
 		this.osc.connect( path ? source[path] : source );
+	},
+
+	start: function() {
+		this.osc.noteOn(0);
 	}
 
 });
