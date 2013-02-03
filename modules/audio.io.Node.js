@@ -22,6 +22,7 @@ audio.io.Node.prototype.onOutputConnect = audio.io.noop;
 
 // Deal with in/out connections.
 audio.io.Node.prototype.connect = function ( type, source ) {
+
 	var types = this._io.connectionTypes,
 		isInput = ~types.input.indexOf( type ),
 		isOutput = ~types.output.indexOf( type );
@@ -48,7 +49,7 @@ audio.io.Node.prototype.connect = function ( type, source ) {
 };
 
 audio.io.Node.prototype.connectTo = function( source ) {
-	this.connect('out', source);
+	return this.connect('out', source);
 };
 
 audio.io.Node.prototype.getPathToNode = function( node ) {
