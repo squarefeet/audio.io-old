@@ -25,7 +25,9 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 	},
 
 	onOutputConnect: function( source ) {
-		this.gain.connect( source );
+		var path = this.getPathToNode( source );
+
+		this.gain.connect( path ? source[path] : source );
 	},
 
 	setAttackTime: function( value ) {

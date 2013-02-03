@@ -14,13 +14,17 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		this.useEnvelope = !!useEnvelope;
 
 
-		if(this.hasVolume && !this.useEnvelope) {
+		if(this.hasVolume) {
 			this.volumeControl = new this._io.VolumeControl( curve, level );
-			this.osc.connect(this.volumeControl.gain);
-		}
-		else if(this.hasVolume && this.useEnvelope) {
-			this.envelope = new audio.io.Envelope(null, level / 127);
-			this.osc.connect(this.envelope.gain);
+
+			if(this.useEnvelope) {
+				this.envelope = new audio.io.Envelope();
+				this.osc.connect(this.envelope.gain);
+				this.envelope.connectTo(this.volumeControl);
+			}
+			else {
+				this.osc.connect(this.volumeControl.gain);
+			}
 		}
 
 
@@ -31,11 +35,8 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 	onOutputConnect: function( source ) {
 		var path = this.getPathToNode( source );
 
-		if(this.hasVolume && !this.useEnvelope) {
+		if(this.hasVolume) {
 			this.volumeControl.connectTo(source[path] );
-		}
-		else if(this.hasVolume && this.useEnvelope) {
-			this.envelope.connectTo( source[path] );
 		}
 		else {
 			this.osc.connect( path ? source[path] : source );
