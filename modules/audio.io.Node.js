@@ -55,11 +55,22 @@ audio.io.Node.prototype.connectTo = function( source ) {
 };
 
 audio.io.Node.prototype.getPathToNode = function( node ) {
+
+	if(this instanceof this._io.LFO) {
+		if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
+			return node.gain.gain;
+		}
+	}
+
 	if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
-		return 'gain';
+		return node.gain;
 	}
 	else if (node instanceof this._io.PanPot) {
-		return 'panner';
+		return node.panner;
+	}
+
+	else {
+		return node;
 	}
 };
 

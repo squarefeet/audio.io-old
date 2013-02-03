@@ -21,9 +21,7 @@ audio.io.LFO = audio.io.Audio.extend({
 	},
 
 	onOutputConnect: function( source ) {
-		var path = this.getPathToNode( source );
-
-		this.osc.connect( path ? source[path] : source );
+		this.osc.connect( this.getPathToNode( source ) );
 	},
 
 	start: function() {

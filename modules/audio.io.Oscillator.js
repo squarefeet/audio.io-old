@@ -27,19 +27,18 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 			}
 		}
 
-
 		// Default to sine if invalid type provided.
 		this.setType ( type );
 	},
 
 	onOutputConnect: function( source ) {
-		var path = this.getPathToNode( source );
+		var node = this.getPathToNode( source );
 
 		if(this.hasVolume) {
-			this.volumeControl.connectTo(source[path] );
+			this.volumeControl.connectTo( node );
 		}
 		else {
-			this.osc.connect( path ? source[path] : source );
+			this.osc.connect( node );
 		}
 	},
 
@@ -85,7 +84,8 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 	}
 });
 
-// TODO: Ensure this Osc can be used for LFOs as well as noise generation
+//
+//
 //
 audio.io.Oscillator = audio.io.Audio.extend({
 	initialize: function( type, maxVoices, retrigger, volumeCurve ) {
@@ -100,10 +100,10 @@ audio.io.Oscillator = audio.io.Audio.extend({
 	},
 
 	onOutputConnect: function( source ) {
-		var path = this.getPathToNode( source );
+		var node = this.getPathToNode( source );
 
 		if(this.instances.length) {
-			this.instances[i].connect( path ? source[path] : source );
+			this.instances[i].connect( node );
 		}
 	},
 

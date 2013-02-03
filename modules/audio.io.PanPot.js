@@ -14,8 +14,9 @@ audio.io.PanPot = audio.io.Audio.extend({
 	},
 
 	onOutputConnect: function( source ) {
-		var path = this.getPathToNode( source );
-		this.panner.connect( source[path] );
+		var node = this.getPathToNode( source );
+
+		this.panner.connect( node );
 	},
 
 	setPosition: function( pos ) {
