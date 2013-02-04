@@ -7,6 +7,10 @@ audio.io.BasicChannelStrip = audio.io.Audio.extend({
 		this.panPot = new this._io.PanPot( panValue || 0 );
 
 		this.volumeControl.gain.connect( this.panPot.panner );
+
+		// Store "modulatable" references
+		this.mods.volume = this.volumeControl.gain.gain;
+		this.mods.panning = this.panPot.panner;
 	},
 
 	onOutputConnect: function( source ) {

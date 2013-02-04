@@ -9,10 +9,8 @@ audio.io.VolumeControl = audio.io.Audio.extend({
 		this.gain = this._io.context.createGainNode();
 
 		this.setVolume( this.defaultValue );
-	},
 
-	onInputConnect: function( source ) {
-		console.log('volume input connected', arguments);
+		this.mods.volume = this.gain.gain.value;
 	},
 
 	onOutputConnect: function( source ) {

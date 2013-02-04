@@ -48,8 +48,3 @@ playableOsc.connectTo( masterChannelStrip );
 var lfo = new audio.io.LFO( 'sine', 1 );
 lfo.connectTo( masterChannelStrip );
 lfo.start();
-
-
-
-
-

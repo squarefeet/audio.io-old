@@ -25,7 +25,7 @@ audio.io.LFO = audio.io.Audio.extend({
 	},
 
 	start: function() {
-		this.osc.noteOn(0);
+		this.osc.start(0);
 	}
 
 });

@@ -63,21 +63,21 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 			this.envelope.events.fire('start');
 		}
 
-		this.osc.noteOn( delay );
+		this.osc.start( delay );
 	},
 
 	stop: function( delay, immediate ) {
 		var that = this;
 
 		if(!this.useEnvelope) {
-			this.osc.noteOff( delay );
+			this.osc.stop( delay );
 		}
 		else if(immediate) {
-			this.osc.noteOff( delay );
+			this.osc.stop( delay );
 		}
 		else {
 			this.envelope.events.on('stop', function() {
-				that.osc.noteOff( delay );
+				that.osc.stop( delay );
 				that.envelope.events.off('stop');
 			});
 
@@ -86,7 +86,7 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 				this.envelope.stop();
 			} catch(e) {
 				console.error(e);
-				this.osc.noteOff( delay );
+				this.osc.stop( delay );
 			}
 		}
 	}

@@ -131,7 +131,7 @@ audio.oscOn = function(name, delay) {
 
 	this.createOscillator(name, this.oscTypes[osc.type], osc.frequency.value);
 
-	this.oscillators[name].noteOn(delay || 0);
+	this.oscillators[name].start(delay || 0);
 };
 
 audio.oscOff = function(name, delay) {
