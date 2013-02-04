@@ -30,7 +30,6 @@ keyboard.events.on('noteOn', onNoteOn);
 // Listen to the `pitchbend` event from the MIDI node and scale the
 // input (0-127) to the panpot's accepted value range of -50 to 50.
 midi.events.on('pitchbend', function(channel, something, value) {
-	console.log(masterChannelStrip);
 	masterChannelStrip.panPot.setPosition( audio.io.utils.scaleNumber(value, 0, 127, -50, 50) );
 });
 
