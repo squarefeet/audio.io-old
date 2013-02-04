@@ -60,10 +60,16 @@ audio.io.Node.prototype.getPathToNode = function( node ) {
 		if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
 			return node.gain.gain;
 		}
+		else if( node instanceof this._io.BasicChannelStrip ) {
+			return node.volumeControl.gain.gain;
+		}
 	}
 
 	if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
 		return node.gain;
+	}
+	else if( node instanceof this._io.BasicChannelStrip ) {
+		return node.volumeControl.gain;
 	}
 	else if (node instanceof this._io.PanPot) {
 		return node.panner;

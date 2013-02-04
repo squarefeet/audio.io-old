@@ -4,7 +4,7 @@ audio.io.initialize();
 
 // Create the master volume control and connect its output
 // "port" to the destination node.
-var volume = (new audio.io.VolumeControl( 'x*x', 50 )).connectTo(audio.io.masterOut);
+var masterChannelStrip = (new audio.io.BasicChannelStrip()).connectTo(audio.io.masterOut);
 
 
 function onNoteOn(channel, freq, velocity) {
@@ -27,17 +27,11 @@ midi.events.on('noteOn', onNoteOn);
 var keyboard = new audio.io.Keyboard();
 keyboard.events.on('noteOn', onNoteOn);
 
-
-// Create a panpot...
-var panpot = new audio.io.PanPot(0);
-
-// ..and connect it to master out
-panpot.connectTo(volume);
-
 // Listen to the `pitchbend` event from the MIDI node and scale the
 // input (0-127) to the panpot's accepted value range of -50 to 50.
 midi.events.on('pitchbend', function(channel, something, value) {
-	panpot.setPosition( audio.io.utils.scaleNumber(value, 0, 127, -50, 50) );
+	console.log(masterChannelStrip);
+	masterChannelStrip.panPot.setPosition( audio.io.utils.scaleNumber(value, 0, 127, -50, 50) );
 });
 
 
@@ -46,14 +40,14 @@ midi.events.on('pitchbend', function(channel, something, value) {
 // and set the retriggering argument to true, and
 // volumeControl curve to x*x
 var playableOsc = new audio.io.Oscillator( 'sine', 16, true, 'x*x' );
-playableOsc.connectTo(panpot);
+playableOsc.connectTo( masterChannelStrip );
 
 
 
 
 // Create a new LFO instance and tell it to modulate the main volume control level
 var lfo = new audio.io.LFO( 'sine', 1 );
-lfo.connectTo( volume );
+lfo.connectTo( masterChannelStrip );
 lfo.start();
 
 
