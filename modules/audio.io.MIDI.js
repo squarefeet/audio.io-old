@@ -20,10 +20,6 @@ audio.io.MIDI = audio.io.Node.extend({
 		this.outputs = null;
 
 		this.channel = +channel || 1;
-
-		this.events = new PubSub({
-			debug: !!eventDebugging
-		});
 	},
 
 	onAccessSuccess: function( midi ) {

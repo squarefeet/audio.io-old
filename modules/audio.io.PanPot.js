@@ -4,19 +4,18 @@
 //
 audio.io.PanPot = audio.io.Audio.extend({
 	initialize: function( defaultPosition ) {
-
 		this.panner = this._io.context.createPanner();
 		this.panner.panningModel = 'equalPower';
 
 		this.position = [];
 
 		this.setPosition( defaultPosition );
-	},
 
-	onOutputConnect: function( source ) {
-		var node = this.getPathToNode( source );
+		// Connect the input to the panner node.
+		this.input.connect(this.panner);
 
-		this.panner.connect( node );
+		// Connect the panner node to the output
+		this.panner.connect(this.output);
 	},
 
 	setPosition: function( pos ) {

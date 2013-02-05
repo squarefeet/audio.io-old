@@ -9,6 +9,9 @@ audio.io.LFO = audio.io.Audio.extend({
 
 		// Default to sine if invalid type provided.
 		this.setType ( type );
+
+		// Connect the oscillator to the output node
+		this.output.connect( this.osc );
 	},
 
 	setType: function( type ) {

@@ -1,13 +1,11 @@
 //
 //	FIXME: Need to account for different keyboard layouts.
 //
-audio.io.Keyboard = audio.io.Audio.extend({
+audio.io.Keyboard = audio.io.Node.extend({
 	initialize: function() {
 
 		document.addEventListener('keydown', this.onKeyDown.bind(this), false);
 		document.addEventListener('keyup', this.onKeyUp.bind(this), false);
-
-		this.events = new PubSub({ debug: false });
 
 		this.active = 1;
 		this.octave = 5;

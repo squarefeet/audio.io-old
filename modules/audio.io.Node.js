@@ -1,6 +1,5 @@
 // The underlying class inherited by most audio.io.* objects.
 audio.io.Node = function () {
-	this.outputs = [];
 
 	// Store a reference to audio.io just in case I decide to
 	// change the namespace. I'm lazy like that. And silly,
@@ -19,6 +18,15 @@ audio.io.Node = function () {
 	//
 	this.mods = {};
 
+	// Create an events instance specific to this node.
+	this.events = new PubSub({
+		debug: false
+	});
+
+	if(typeof this.setup === 'function') {
+		this.setup.apply(this, arguments);
+	}
+
 	if(typeof this.initialize === 'function') {
 		this.initialize.apply(this, arguments);
 	}
@@ -30,42 +38,46 @@ audio.io.Node = function () {
 // from audio.io.
 audio.io.Node.prototype.onOutputConnect = audio.io.noop;
 
-audio.io.Node.prototype.connectTo = function( source ) {
-	if(!source instanceof audio.io.Node) {
-		console.log('Please pass a valid audio.io.Node object as your', type, 'source.');
-	}
+// audio.io.Node.prototype.connectTo = function( source ) {
+// 	if(!source instanceof audio.io.Node) {
+// 		console.log('Please pass a valid audio.io.Node object as your', type, 'source.');
+// 	}
 
-	this.outputs.push( source );
-	this.onOutputConnect( source );
+// 	this.outputs.push( source );
+// 	this.onOutputConnect( source );
 
-	return this;
-};
-
-audio.io.Node.prototype.getPathToNode = function( node ) {
-
-	if(this instanceof this._io.LFO) {
-		if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
-			return node.gain.gain;
-		}
-		else if( node instanceof this._io.BasicChannelStrip ) {
-			return node.volumeControl.gain.gain;
-		}
-	}
-
-	if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
-		return node.gain;
-	}
-	else if( node instanceof this._io.BasicChannelStrip ) {
-		return node.volumeControl.gain;
-	}
-	else if (node instanceof this._io.PanPot) {
-		return node.panner;
-	}
-
-	else {
-		return node;
-	}
-};
+// 	return this;
+// };
 
 
+// audio.io.Node.prototype.getPathToNode = function( node ) {
+
+// 	if(this instanceof this._io.LFO) {
+// 		if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
+// 			return node.gain.gain;
+// 		}
+// 		else if( node instanceof this._io.BasicChannelStrip ) {
+// 			return node.volumeControl.gain.gain;
+// 		}
+// 		else {
+// 			return node;
+// 		}
+// 	}
+
+// 	if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
+// 		return node.gain;
+// 	}
+// 	else if( node instanceof this._io.BasicChannelStrip ) {
+// 		return node.volumeControl.gain;
+// 	}
+// 	else if (node instanceof this._io.PanPot) {
+// 		return node.panner;
+// 	}
+
+// 	else {
+// 		return node;
+// 	}
+// };
+
+// Make this object extendable.
 audio.io.Node.extend = window.extend;

@@ -6,18 +6,16 @@ audio.io.VolumeControl = audio.io.Audio.extend({
 		this.minValue = 0;
 		this.defaultValue = +defaultVolume || this.maxValue;
 
-		this.gain = this._io.context.createGainNode();
-
 		this.setVolume( this.defaultValue );
 
-		this.mods.volume = this.gain.gain.value;
-	},
+		// Register modulatable parameters
+		this.modAttributes.volume = this.output.gain;
 
-	onOutputConnect: function( source ) {
-		this.gain.connect( source );
+		// Connect the input directly to the output
+		this.input.connect( this.output );
 	},
 
 	setVolume: function( value ) {
-		this.gain.gain.value = this._io.utils.getValueWithCurve( this.curve, value, this.maxValue);
+		this.output.gain.value = this._io.utils.getValueWithCurve( this.curve, value, this.maxValue);
 	}
 });

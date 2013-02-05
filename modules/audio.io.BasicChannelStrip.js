@@ -6,14 +6,16 @@ audio.io.BasicChannelStrip = audio.io.Audio.extend({
 		this.volumeControl = new this._io.VolumeControl( volumeCurve || 'x*x', defaultLevel || 50 );
 		this.panPot = new this._io.PanPot( panValue || 0 );
 
-		this.volumeControl.gain.connect( this.panPot.panner );
+		// Connect the panpot to the input node
+		this.input.connect( this.panPot.panner );
+
+		// Connect the panpot node to the volume node
+		this.panPot.connect( this.volumeControl );
+
+		// Connect the volume node to the output
+		this.volumeControl.connect( this.output );
 
 		// Store "modulatable" references
-		this.mods.volume = this.volumeControl.gain.gain;
-		this.mods.panning = this.panPot.panner;
-	},
-
-	onOutputConnect: function( source ) {
-		this.panPot.panner.connect( source );
+		this.modAttributes.volume = this.volumeControl.mods.volume;
 	}
 });

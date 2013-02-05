@@ -68,3 +68,8 @@
 	* _Resource: http://www.softsynth.com/webaudio/gainramp.php_
 
 * **Oscillator Group**: _Nin -> _Freq (+- fine) -> Pan Pot -> Volume Control -> Envelope -> Out_
+
+
+
+### Resources ###
+* How to make an impulse: http://stackoverflow.com/questions/9206943/making-an-impulse-with-a-javascriptnode-web-audio-api

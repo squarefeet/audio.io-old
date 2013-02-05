@@ -4,7 +4,6 @@
 //
 audio.io.BasicEnvelope = audio.io.Audio.extend({
 	initialize: function(attackTime, decayTime, sustainLevel, releaseTime) {
-		this.gain = this._io.context.createGainNode();
 
 		// Set timing values
 		this.setAttackTime( attackTime );
@@ -19,10 +18,9 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 		this.events.on('start', this.start, this);
 
 		this.startTime = 0;
-	},
 
-	onOutputConnect: function( source ) {
-		this.gain.connect( this.getPathToNode( source ) );
+		// Connect in to out directly
+		this.input.connect( this.output );
 	},
 
 	setAttackTime: function( value ) {
@@ -65,7 +63,7 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 	// A 'noteOn' equivalent. Will ramp up to attack, down to decay at sustain level.
 	start: function() {
 		var now = this._io.context.currentTime,
-			gain = this.gain.gain;
+			gain = this.output.gain;
 
 		this.startTime = now;
 
@@ -83,7 +81,7 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 
 	stop: function() {
 		var now = this._io.context.currentTime,
-			gain = this.gain.gain,
+			gain = this.output.gain,
 			that = this,
 
 			envelopeLength = this.startTime + this.attackTime + this.decayTime;
@@ -129,6 +127,9 @@ audio.io.Envelope = audio.io.BasicEnvelope.extend({
 		this.events.on('start', this.start, this);
 
 		this.startTime = 0;
+
+		// Connect in to out directly
+		this.input.connect( this.output );
 	},
 
 	setAttackLevel: function( value ) {

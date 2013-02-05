@@ -4,7 +4,8 @@ audio.io.initialize();
 
 // Create the master volume control and connect its output
 // "port" to the destination node.
-var masterChannelStrip = (new audio.io.BasicChannelStrip()).connectTo(audio.io.masterOut);
+var masterChannelStrip = new audio.io.BasicChannelStrip();
+masterChannelStrip.connect(audio.io.masterOut);
 
 
 function onNoteOn(channel, freq, velocity) {
@@ -39,12 +40,14 @@ midi.events.on('pitchbend', function(channel, something, value) {
 // and set the retriggering argument to true, and
 // volumeControl curve to x*x
 var playableOsc = new audio.io.Oscillator( 'sine', 16, true, 'x*x' );
-playableOsc.connectTo( masterChannelStrip );
+playableOsc.connect( masterChannelStrip );
 
 
 
 
 // Create a new LFO instance and tell it to modulate the main volume control level
-var lfo = new audio.io.LFO( 'sine', 1 );
-lfo.connectTo( masterChannelStrip );
-lfo.start();
+// var lfo = new audio.io.LFO( 'sine', 1 );
+// lfo.connectTo( playableOsc.mods.pitch );
+// lfo.start();
+
+// playableOsc.connectMod(lfo, 'frequency');

@@ -12,7 +12,6 @@ audio.io = {
 
 	oscTypes: ['sine', 'square', 'sawtooth', 'triangle'],
 
-
 	keyboard: {
 		DOWN_OCTAVE: 	'Z',
 		UP_OCTAVE: 		'X',

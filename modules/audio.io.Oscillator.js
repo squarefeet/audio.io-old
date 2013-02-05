@@ -18,28 +18,24 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 			this.volumeControl = new this._io.VolumeControl( curve, level );
 
 			if(this.useEnvelope) {
-				this.envelope = new audio.io.Envelope();
-				this.osc.connect(this.envelope.gain);
-				this.envelope.connectTo(this.volumeControl);
+				this.envelope = new audio.io.BasicEnvelope();
+				this.osc.connect( this.envelope.input );
+				this.envelope.connect( this.volumeControl );
 			}
 			else {
-				this.osc.connect(this.volumeControl.gain);
+				this.osc.connect( this.volumeControl );
 			}
+
+			this.volumeControl.connect( this.output );
 		}
+		else {
+			this.osc.connect( this.output );
+		}
+
+
 
 		// Default to sine if invalid type provided.
 		this.setType ( type );
-	},
-
-	onOutputConnect: function( source ) {
-		var node = this.getPathToNode( source );
-
-		if(this.hasVolume) {
-			this.volumeControl.connectTo( node );
-		}
-		else {
-			this.osc.connect( node );
-		}
 	},
 
 	setType: function( type ) {
@@ -107,14 +103,6 @@ audio.io.Oscillator = audio.io.Audio.extend({
 		this.setType( type );
 	},
 
-	onOutputConnect: function( source ) {
-		var node = this.getPathToNode( source );
-
-		if(this.instances.length) {
-			this.instances[i].connect( node );
-		}
-	},
-
 	setType: function( type ) {
 		// No need to do any checking here since we're now using MonoOscillator
 		// class when .start() is called.
@@ -149,9 +137,7 @@ audio.io.Oscillator = audio.io.Audio.extend({
 
 
 		// Connect osc to all available outputs.
-		for(var i = 0, il = this.outputs.length, path; i < il; ++i) {
-			osc.connectTo( this.outputs[i] );
-		}
+		osc.connect( this.output );
 
 		// Turn it on, baby!
 		osc.start( delay );
