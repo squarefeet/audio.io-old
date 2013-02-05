@@ -46,8 +46,7 @@ playableOsc.connect( masterChannelStrip );
 
 
 // Create a new LFO instance and tell it to modulate the main volume control level
-// var lfo = new audio.io.LFO( 'sine', 1 );
-// lfo.connectTo( playableOsc.mods.pitch );
-// lfo.start();
+var lfo = new audio.io.LFO( 'sine', 1 );
+lfo.start();
 
-// playableOsc.connectMod(lfo, 'frequency');
+playableOsc.connectMod(lfo, 'pitch');

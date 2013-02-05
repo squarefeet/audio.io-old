@@ -1,4 +1,4 @@
-audio.io.LFO = audio.io.Audio.extend({
+audio.io.LFO = audio.io.Node.extend({
 	initialize: function( type, rate ) {
 		// Default to 440hz if none provided.
 		this.rate = +rate || 2;
@@ -9,9 +9,6 @@ audio.io.LFO = audio.io.Audio.extend({
 
 		// Default to sine if invalid type provided.
 		this.setType ( type );
-
-		// Connect the oscillator to the output node
-		this.output.connect( this.osc );
 	},
 
 	setType: function( type ) {
@@ -21,10 +18,6 @@ audio.io.LFO = audio.io.Audio.extend({
 		this.type = ~hasType ? hasType : 0;
 
 		this.osc.type = this.type;
-	},
-
-	onOutputConnect: function( source ) {
-		this.osc.connect( this.getPathToNode( source ) );
 	},
 
 	start: function() {

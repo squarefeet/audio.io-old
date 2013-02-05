@@ -1,30 +1,31 @@
 
 audio.io.Audio = audio.io.Node.extend({
 
+	// This object will hold any LFO or envelope instances
+	// that will connect to targetted attributes such as
+	// gain levels, frequencies, etc.
+	modSources: {},
+
+	// Modulatable attributes (such as the gain levels and
+		// frequencies mentioned above) will be stored here.
+	modAttributes: {},
+
 	// Setup is run before initialize. Allows us to create shared
 	// methods & properties.
 	setup: function() {
 		// Create in and out ports
 		this.input = this._io.context.createGainNode();
 		this.output = this._io.context.createGainNode();
-
-		// This object will hold any LFO or envelope instances
-		// that will connect to targetted attributes such as
-		// gain levels, frequencies, etc.
-		this.modSources = {};
-
-		// Modulatable attributes (such as the gain levels and
-		// frequencies mentioned above) will be stored here.
-		this.modAttributes = {};
 	},
 
 	connectMod: function( modSource, targetAttribute ) {
 		// If the attribute is allowed to be modulated
 		// store this modSource so we can reference it
 		// when needed.
-		if( this.modAttributes[ targetAttribute ] ) {
+
+		// if( this.modAttributes.hasOwnProperty( targetAttribute ) ) {
 			this.modSources[ targetAttribute ] = modSource;
-		}
+		// }
 	},
 
 	connect: function( source ) {

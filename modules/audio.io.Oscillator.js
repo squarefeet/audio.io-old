@@ -27,12 +27,16 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 			}
 
 			this.volumeControl.connect( this.output );
+
+			// Store a refernence to the volume control's mod.
+			this.modAttributes.volume = this.volumeControl.output;
 		}
 		else {
 			this.osc.connect( this.output );
 		}
 
-
+		// Store "modulatable" references
+		this.modAttributes.pitch = this.osc.frequency;
 
 		// Default to sine if invalid type provided.
 		this.setType ( type );
@@ -58,6 +62,15 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		else if(this.useEnvelope) {
 			this.envelope.events.fire('start');
 		}
+
+		// FIXME: Why doesn't this modulate?
+		//        Setting it to modulate
+		//        this.volumeControl.output.gain works fine :S
+		if(this.modSources.pitch) {
+			this.modSources.pitch.osc.connect( this.osc.frequency );
+			this.modSources.pitch.osc.connect( this.volumeControl.output.gain );
+		}
+
 
 		this.osc.start( delay );
 	},
