@@ -6,9 +6,15 @@ audio.io.Node = function () {
 	// because it's pointless.
 	this._io = audio.io;
 
-	// Give each Node a (hopefully) random ID.
-	// FIXME: Deprecate?
-	this.id = Math.random() * 9827348 | 0;
+	// Give each Node a (hopefully) random (GU)ID.
+  // Using the 'broofa guid generator'
+  // (http://stackoverflow.com/a/2117523/1592759)
+  this.id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var rand = (crypto.getRandomNumbers) ? crypto.getRandomNumbers(new Uint32Array(1))[0]/2<<29+96 : Math.random();
+    var r = rand*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+
 
 	// This is where references to all automatable parameters
 	// will be stored.
