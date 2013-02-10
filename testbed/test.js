@@ -36,7 +36,7 @@ midi.events.on('pitchbend', function(channel, something, value) {
 
 
 // Create a filter
-var filter = new audio.io.Filter('highpass', 500);
+var filter = new audio.io.Filter('highpass', 500, 5);
 filter.connect( masterChannelStrip );
 
 // Create a playable oscillator (not single-shot) and
@@ -49,10 +49,18 @@ playableOsc.connect( filter );
 
 
 
-// Create a new LFO instance and tell it to modulate the main volume control level
-var lfo = new audio.io.LFO( 'sine', 1 );
-lfo.start();
-filter.connectMod(lfo, 'frequency');
+// Create a new LFO instance at 3hz and 300 depth units
+var pitchLfo = new audio.io.LFO( 'sine', 3, 300 );
+pitchLfo.start();
 
+// Make another LFO at 1hz and 5 depth units
+var lfoMod = new audio.io.LFO('sawtooth', 1, 10);
+lfoMod.start();
 
-playableOsc.connectMod(lfo, 'pitch');
+// Connect the lfoMod to the pitchLfo frequency value,
+// so we end up with a nice off-beat filter wobble.
+pitchLfo.connectMod(lfoMod, 'frequency');
+filter.connectMod(pitchLfo, 'frequency');
+
+//
+// playableOsc.connectMod(pitchLfo, 'pitch');

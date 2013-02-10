@@ -21,7 +21,6 @@ audio.io.Effect = audio.io.Audio.extend({
 
 	connectMod: function( modSource, param ) {
 		if( this.effect[param] ) {
-			console.log(modSource)
 			modSource.output.connect( this.effect[param] );
 		}
 	}
@@ -47,8 +46,6 @@ audio.io.Filter = audio.io.Effect.extend({
 		// Mark this Node as active, so if/when .bypass() is called
 		// it will behave as expected.
 		this.active = 1;
-
-		console.log(this.effect);
 	},
 
 	setType: function( type ) {
