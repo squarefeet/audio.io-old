@@ -1,0 +1,24 @@
+<body>
+	<script type="text/javascript">
+		var context = new webkitAudioContext();
+			destination = context.destination,
+			osc = context.createOscillator(),
+			lfo = context.createOscillator(),
+			lfoGain = context.createGainNode(),
+			filter = context.createBiquadFilter();
+
+		osc.type = osc.TRIANGLE;
+		filter.type = filter.HIGHPASS;
+
+		osc.connect(filter);
+		filter.connect(destination);
+
+		lfo.connect(lfoGain);
+		lfoGain.connect(filter.frequency);
+
+		lfoGain.gain.value = 2000;
+
+		lfo.noteOn(2);
+		osc.noteOn(1);
+	</script>
+</body>

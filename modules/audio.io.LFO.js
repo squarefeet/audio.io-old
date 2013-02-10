@@ -7,8 +7,12 @@ audio.io.LFO = audio.io.Node.extend({
 		this.osc = this._io.context.createOscillator();
 		this.osc.frequency.value = this.rate;
 
-		// Default to sine if invalid type provided.
 		this.setType ( type );
+
+		this.output = this._io.context.createGainNode();
+		this.output.gain.value = 1000;
+		this.osc.connect(this.output);
+
 	},
 
 	setType: function( type ) {

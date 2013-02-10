@@ -12,6 +12,8 @@ audio.io = {
 
 	oscTypes: ['sine', 'square', 'sawtooth', 'triangle'],
 
+	filterTypes: ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'peaking', 'notch', 'allpass'],
+
 	keyboard: {
 		DOWN_OCTAVE: 	'Z',
 		UP_OCTAVE: 		'X',

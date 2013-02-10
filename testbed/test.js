@@ -35,18 +35,24 @@ midi.events.on('pitchbend', function(channel, something, value) {
 });
 
 
+// Create a filter
+var filter = new audio.io.Filter('highpass', 500);
+filter.connect( masterChannelStrip );
+
 // Create a playable oscillator (not single-shot) and
 // allow it to have up to 16 voices, using a sine wave,
 // and set the retriggering argument to true, and
 // volumeControl curve to x*x
-var playableOsc = new audio.io.Oscillator( 'sine', 16, true, 'x*x' );
-playableOsc.connect( masterChannelStrip );
+var playableOsc = new audio.io.Oscillator( 'triangle', 16, true, 'x*x' );
+playableOsc.connect( filter );
 
 
 
 
 // Create a new LFO instance and tell it to modulate the main volume control level
-// var lfo = new audio.io.LFO( 'sine', 1 );
-// lfo.start();
+var lfo = new audio.io.LFO( 'sine', 1 );
+lfo.start();
+filter.connectMod(lfo, 'frequency');
 
-// playableOsc.connectMod(lfo, 'pitch');
+
+playableOsc.connectMod(lfo, 'pitch');

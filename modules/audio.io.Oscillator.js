@@ -67,8 +67,8 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		//        Setting it to modulate
 		//        this.volumeControl.output.gain works fine :S
 		if(this.modSources.pitch) {
-			this.modSources.pitch.osc.connect( this.osc.frequency );
-			this.modSources.pitch.osc.connect( this.volumeControl.output.gain );
+			this.modSources.pitch.output.connect( this.osc.frequency );
+			// this.modSources.pitch.osc.connect( this.volumeControl.output.gain );
 		}
 
 
