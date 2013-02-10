@@ -4,7 +4,7 @@ audio.io.initialize();
 
 // Create the master volume control and connect its output
 // "port" to the destination node.
-var masterChannelStrip = new audio.io.BasicChannelStrip();
+var masterChannelStrip = new audio.io.BasicChannelStrip('x*x', 75);
 masterChannelStrip.connect(audio.io.masterOut);
 
 
@@ -46,7 +46,7 @@ playableOsc.connect( masterChannelStrip );
 
 
 // Create a new LFO instance and tell it to modulate the main volume control level
-var lfo = new audio.io.LFO( 'sine', 1 );
-lfo.start();
+// var lfo = new audio.io.LFO( 'sine', 1 );
+// lfo.start();
 
-playableOsc.connectMod(lfo, 'pitch');
+// playableOsc.connectMod(lfo, 'pitch');

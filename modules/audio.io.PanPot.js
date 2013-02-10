@@ -2,42 +2,61 @@
 // A 2d, stereo PanPot. Accepted values in range -50 to 50.
 // Center position is 0.
 //
-audio.io.PanPot = audio.io.Audio.extend({
-	initialize: function( defaultPosition ) {
-		this.panner = this._io.context.createPanner();
-		this.panner.panningModel = 'equalPower';
 
-		this.position = [];
+audio.io.StereoPanPot = audio.io.Audio.extend({
+	initialize: function( value ) {
 
-		this.setPosition( defaultPosition );
+		// Create a channel splitter so we can grab left/right channels.
+		this.splitter = this._io.context.createChannelSplitter(2);
 
-		// Connect the input to the panner node.
-		this.input.connect(this.panner);
+		// Create gain Nodes for left/right channels.
+		this.leftGain = this._io.context.createGainNode();
+		this.rightGain = this._io.context.createGainNode();
 
-		// Connect the panner node to the output
-		this.panner.connect(this.output);
+		// Create a channel merger
+		this.merger = this._io.context.createChannelMerger(2);
+
+		// Connect audio in to splitter...
+		this.input.connect(this.splitter);
+
+		// ...then left/right splitter out to each gain node
+		this.splitter.connect(this.leftGain, 0);
+		this.splitter.connect(this.rightGain, 0);
+
+		// ...then connect the left/right gain nodes back into the merger
+		this.leftGain.connect(this.merger, 0, 0);
+		this.rightGain.connect(this.merger, 0, 1);
+
+		// ...and finally connect the merger to the output
+		this.merger.connect(this.output);
+
+		// Set the initial panning value
+		this.setPosition( value );
 	},
 
-	setPosition: function( pos ) {
-		var x = 0,
-			y = 0,
-			z = -0.5;
+	setPosition: function( value ) {
+		// -50 to 50
 
-		// Normalize position argument
-		pos = +pos;
+		if(!value) { value = 0; }
 
-		if( pos < -50 ) {
-			pos = -50;
+		value = Math.min(50, value);
+		value = Math.max(-50, value);
+
+		value = this._io.utils.scaleNumber(value, -50, 50, -1, 1);
+
+		// Optimise for center
+		if(value === 0.5) {
+			this.leftGain.gain.value = this.rightGain.gain.value = 1;
 		}
-		else if( pos > 50 ) {
-			pos = 50;
+
+
+		else if(value > 0) {
+			this.leftGain.gain.value = 1 - value;
+			this.rightGain.gain.value = 1;
 		}
-
-		// Reuse the same Array literal.
-		this.position[0] = x;
-		this.position[1] = y;
-		this.position[2] = z;
-
-		this.panner.setPosition(pos/50, y, z);
+		else if(value < 0) {
+			this.rightGain.gain.value = 1+ value;
+			this.leftGain.gain.value = 1;
+		}
 	}
 });

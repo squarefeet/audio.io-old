@@ -10,8 +10,9 @@ audio.io.Audio = audio.io.Node.extend({
 		// frequencies mentioned above) will be stored here.
 	modAttributes: {},
 
-	// Setup is run before initialize. Allows us to create shared
-	// methods & properties.
+	// Setup is run *before* initialize. Allows us to create shared
+	// methods & properties without interfering with any initialization
+	// logic in each Node.
 	setup: function() {
 		// Create in and out ports
 		this.input = this._io.context.createGainNode();

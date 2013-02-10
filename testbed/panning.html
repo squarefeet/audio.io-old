@@ -1,0 +1,31 @@
+<body>
+	<script type="text/javascript">
+		var context = new webkitAudioContext();
+		var destination = context.destination;
+
+		var osc = context.createOscillator();
+
+		var splitter = context.createChannelSplitter(2);
+
+		var left = context.createGainNode();
+		var right = context.createGainNode();
+
+		var merger = context.createChannelMerger(2);
+
+		left.gain.value = 0.5;
+		right.gain.value = 0;
+
+
+		osc.connect(splitter);
+
+		osc.start(0);
+
+		splitter.connect(left, 0);
+		splitter.connect(right, 0);
+
+		left.connect(merger, 0, 0);
+		right.connect(merger, 0, 1);
+
+		merger.connect(destination);
+	</script>
+</body>
