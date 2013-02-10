@@ -39,8 +39,8 @@ midi.events.on('pitchbend', function(channel, something, value) {
 var reverb = new audio.io.Reverb();
 reverb.connect( masterChannelStrip );
 
-// Create a filter
-var filter = new audio.io.Filter('allpass', 200, 1);
+// Create a filter (lowpass, 200hz, 1unit of resonance, and 100% dry/wet)
+var filter = new audio.io.Filter('lowpass', 200, 1, 100);
 filter.connect( reverb );
 
 
@@ -60,8 +60,12 @@ var pitchLfo = new audio.io.LFO( 'sine', 3, 100 );
 pitchLfo.start();
 
 // Make another LFO at 1hz and 5 depth units
-var lfoMod = new audio.io.LFO('sawtooth', 0.2, 10);
+var lfoMod = new audio.io.LFO('sawtooth', 0.5, 10);
 lfoMod.start();
+
+// Aaaand another LFO to mod the filter cutoff
+var filterLfo = new audio.io.LFO('sine', 0.2, 4000);
+filterLfo.start();
 
 // Connect the lfoMod to the pitchLfo frequency value,
 // so we end up with a nice off-beat filter wobble.
@@ -70,3 +74,5 @@ filter.connectMod(pitchLfo, 'frequency');
 
 //
 playableOsc.connectMod(pitchLfo, 'pitch');
+
+filter.connectMod(filterLfo, 'frequency');

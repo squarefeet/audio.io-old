@@ -119,5 +119,31 @@ audio.io.utils = {
 		if(positionInScale === -1) return null;
 
 		return positionInScale + (octave * 12);
+	},
+
+	loadFileIntoBuffer: function( path, callback ) {
+		var xhr = new XMLHttpRequest();
+
+		xhr.open("GET", path, true);
+
+        xhr.responseType = "arraybuffer";
+
+        xhr.onreadystatechange = function () {
+            if(xhr.readyState === 4) {
+                if(xhr.status < 300 && xhr.status > 199 || xhr.status === 302) {
+                    audio.io.context.decodeAudioData(
+                    	xhr.response,
+                    	function (buffer) {
+                        	callback( buffer );
+                    	},
+                    	function (e) {
+                        	if(e) console.log("Error loading impulse:", e);
+                    	}
+                    );
+                }
+            }
+        };
+
+        xhr.send(null);
 	}
 };

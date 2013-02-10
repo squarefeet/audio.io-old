@@ -1,6 +1,21 @@
 // Create an audio effect class to hold shared effect
 // functions...
 audio.io.Effect = audio.io.Audio.extend({
+	setup: function() {
+		// Create in and out ports
+		this.input = this._io.context.createGainNode();
+		this.output = this._io.context.createGainNode();
+
+		this.dry = this._io.context.createGainNode();
+		this.wet = this._io.context.createGainNode();
+
+		this.input.connect( this.dry );
+
+		// Connect wet and dry to output
+		this.dry.connect( this.output );
+		this.wet.connect( this.output );
+	},
+
 	bypass: function( bool ) {
 		// If bool is truthy and we're already
 		// connected to the effect, go ahead and disconnect...
@@ -23,13 +38,19 @@ audio.io.Effect = audio.io.Audio.extend({
 		if( this.effect[param] ) {
 			modSource.output.connect( this.effect[param] );
 		}
-	}
+	},
+
+	setDryWet: function( value ) {
+		// Range 0 - 100
+		this.dry.gain.value = (100 - value) / 100;
+		this.wet.gain.value = value / 100;
+	},
 });
 
 
 
 audio.io.Filter = audio.io.Effect.extend({
-	initialize: function(type, cutoff, res, gain) {
+	initialize: function(type, cutoff, res, gain, dryWet) {
 		this.effect = this._io.context.createBiquadFilter();
 
 		this.setType( type );
@@ -40,8 +61,8 @@ audio.io.Filter = audio.io.Effect.extend({
 		// Connect input to filter
 		this.input.connect( this.effect );
 
-		// ... and the filter to the output.
-		this.effect.connect( this.output );
+		// ... and the filter to the wet control.
+		this.effect.connect( this.wet );
 
 		// Mark this Node as active, so if/when .bypass() is called
 		// it will behave as expected.
@@ -75,21 +96,12 @@ audio.io.Reverb = audio.io.Effect.extend({
 
 		this.setImpulse( impulse ||'impulse_rev.wav' );
 
-
-		this.dry = this._io.context.createGainNode();
-		this.wet = this._io.context.createGainNode();
-
-
 		// Connect input to dry gain node and effect
-		this.input.connect( this.dry );
 		this.input.connect( this.effect );
 
 		// Connect convolver to the wet gain node.
 		this.effect.connect( this.wet );
 
-		// Connect wet and dry to output
-		this.dry.connect( this.output );
-		this.wet.connect( this.output );
 
 		// Set wet/dry level
 		this.setDryWet( dryWet || 50 );
@@ -97,33 +109,12 @@ audio.io.Reverb = audio.io.Effect.extend({
 		this.active = 1;
 	},
 
-	setDryWet: function( value ) {
-		// Range 0 - 100
-		this.dry.gain.value = (100 - value) / 100;
-		this.wet.gain.value = value / 100;
-	},
-
 	setImpulse: function( impulseFilename ) {
-		var xhr = new XMLHttpRequest(),
-			that = this;
 
-		xhr.open("GET", '../impulses/' + impulseFilename, true);
-        xhr.responseType = "arraybuffer";
-        xhr.onreadystatechange = function () {
-            if(xhr.readyState === 4) {
-                if(xhr.status < 300 && xhr.status > 199 || xhr.status === 302) {
-                    that._io.context.decodeAudioData(
-                    	xhr.response,
-                    	function (buffer) {
-                        	that.effect.buffer = buffer;
-                    	},
-                    	function (e) {
-                        	if(e) console.log("Error loading impulse:", e);
-                    	}
-                    );
-                }
-            }
-        };
-        xhr.send(null);
+		var that = this;
+
+		this._io.utils.loadFileIntoBuffer('../impulses/' + impulseFilename, function(buffer) {
+			that.effect.buffer = buffer;
+		});
 	}
 });
