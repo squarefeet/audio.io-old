@@ -70,17 +70,37 @@ audio.io.Filter = audio.io.Effect.extend({
 
 
 audio.io.Reverb = audio.io.Effect.extend({
-	initialize: function() {
+	initialize: function( impulse, dryWet ) {
 		this.effect = this._io.context.createConvolver();
 
-		this.setImpulse('impulse_rev.wav');
+		this.setImpulse( impulse ||'impulse_rev.wav' );
 
-		console.log(this.effect);
 
+		this.dry = this._io.context.createGainNode();
+		this.wet = this._io.context.createGainNode();
+
+
+		// Connect input to dry gain node and effect
+		this.input.connect( this.dry );
 		this.input.connect( this.effect );
-		this.effect.connect( this.output );
+
+		// Connect convolver to the wet gain node.
+		this.effect.connect( this.wet );
+
+		// Connect wet and dry to output
+		this.dry.connect( this.output );
+		this.wet.connect( this.output );
+
+		// Set wet/dry level
+		this.setDryWet( dryWet || 50 );
 
 		this.active = 1;
+	},
+
+	setDryWet: function( value ) {
+		// Range 0 - 100
+		this.dry.gain.value = (100 - value) / 100;
+		this.wet.gain.value = value / 100;
 	},
 
 	setImpulse: function( impulseFilename ) {

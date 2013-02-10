@@ -24,7 +24,7 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 	},
 
 	setAttackTime: function( value ) {
-		this.attackTime = +value || 1;
+		this.attackTime = +value || 0.05;
 	},
 	setDecayTime: function( value ) {
 		this.decayTime = +value || 0.4;

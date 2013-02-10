@@ -4,7 +4,7 @@ audio.io.initialize();
 
 // Create the master volume control and connect its output
 // "port" to the destination node.
-var masterChannelStrip = new audio.io.BasicChannelStrip('x*x', 75);
+var masterChannelStrip = new audio.io.BasicChannelStrip('x*x', 50);
 masterChannelStrip.connect(audio.io.masterOut);
 
 
@@ -40,7 +40,7 @@ var reverb = new audio.io.Reverb();
 reverb.connect( masterChannelStrip );
 
 // Create a filter
-var filter = new audio.io.Filter('highpass', 500, 5);
+var filter = new audio.io.Filter('allpass', 200, 1);
 filter.connect( reverb );
 
 
@@ -49,18 +49,18 @@ filter.connect( reverb );
 // allow it to have up to 16 voices, using a sine wave,
 // and set the retriggering argument to true, and
 // volumeControl curve to x*x
-var playableOsc = new audio.io.Oscillator( 'triangle', 16, true, 'x*x' );
+var playableOsc = new audio.io.Oscillator( 'sawtooth', 16, true, 'x*x' );
 playableOsc.connect( filter );
 
 
 
 
 // Create a new LFO instance at 3hz and 300 depth units
-var pitchLfo = new audio.io.LFO( 'sine', 3, 300 );
+var pitchLfo = new audio.io.LFO( 'sine', 3, 100 );
 pitchLfo.start();
 
 // Make another LFO at 1hz and 5 depth units
-var lfoMod = new audio.io.LFO('sawtooth', 1, 10);
+var lfoMod = new audio.io.LFO('sawtooth', 0.2, 10);
 lfoMod.start();
 
 // Connect the lfoMod to the pitchLfo frequency value,
@@ -69,4 +69,4 @@ pitchLfo.connectMod(lfoMod, 'frequency');
 filter.connectMod(pitchLfo, 'frequency');
 
 //
-// playableOsc.connectMod(pitchLfo, 'pitch');
+playableOsc.connectMod(pitchLfo, 'pitch');
