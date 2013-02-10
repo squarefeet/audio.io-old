@@ -70,5 +70,40 @@ audio.io.Filter = audio.io.Effect.extend({
 
 
 audio.io.Reverb = audio.io.Effect.extend({
+	initialize: function() {
+		this.effect = this._io.context.createConvolver();
 
+		this.setImpulse('impulse_rev.wav');
+
+		console.log(this.effect);
+
+		this.input.connect( this.effect );
+		this.effect.connect( this.output );
+
+		this.active = 1;
+	},
+
+	setImpulse: function( impulseFilename ) {
+		var xhr = new XMLHttpRequest(),
+			that = this;
+
+		xhr.open("GET", '../impulses/' + impulseFilename, true);
+        xhr.responseType = "arraybuffer";
+        xhr.onreadystatechange = function () {
+            if(xhr.readyState === 4) {
+                if(xhr.status < 300 && xhr.status > 199 || xhr.status === 302) {
+                    that._io.context.decodeAudioData(
+                    	xhr.response,
+                    	function (buffer) {
+                        	that.effect.buffer = buffer;
+                    	},
+                    	function (e) {
+                        	if(e) console.log("Error loading impulse:", e);
+                    	}
+                    );
+                }
+            }
+        };
+        xhr.send(null);
+	}
 });

@@ -35,9 +35,15 @@ midi.events.on('pitchbend', function(channel, something, value) {
 });
 
 
+// Create some yummy reverb
+var reverb = new audio.io.Reverb();
+reverb.connect( masterChannelStrip );
+
 // Create a filter
 var filter = new audio.io.Filter('highpass', 500, 5);
-filter.connect( masterChannelStrip );
+filter.connect( reverb );
+
+
 
 // Create a playable oscillator (not single-shot) and
 // allow it to have up to 16 voices, using a sine wave,
