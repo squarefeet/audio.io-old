@@ -1,0 +1,52 @@
+<body>
+	<script type="text/javascript">
+		var context = new webkitAudioContext();
+		var destination = context.destination;
+
+		var osc = context.createOscillator();
+
+		var gainL = context.createGainNode();
+		var gainR = context.createGainNode();
+
+		var splitter = context.createChannelSplitter(2);
+		var merger = context.createChannelMerger(2);
+
+		osc.frequency.value = 500;
+
+		osc.connect( splitter );
+
+		splitter.connect(gainL, 0);
+		splitter.connect(gainR, 0);
+
+		gainL.connect(merger, 0, 0);
+		gainR.connect(merger, 0, 1);
+
+		osc.noteOn(0);
+
+		setTimeout(function() {
+			gainL.gain.value = 0.1;
+
+			setTimeout(function() {
+				gainL.gain.value = 1;
+				gainR.gain.value = 0.1;
+
+				setTimeout(function() {
+					gainR.gain.value = 1;
+					osc.noteOff(1);
+				}, 500);
+			}, 500);
+		}, 500);
+
+
+		var osc2 = context.createOscillator();
+		osc2.frequency.value = 800;
+
+		osc2.connect(destination);
+		osc2.noteOn(0.5);
+		osc2.noteOff(2);
+
+		// osc.noteOff(2);
+
+		merger.connect(destination);
+	</script>
+</body>

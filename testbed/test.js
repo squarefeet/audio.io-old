@@ -35,44 +35,32 @@ midi.events.on('pitchbend', function(channel, something, value) {
 });
 
 
-// Create some yummy delay
-var delay = new audio.io.StereoDelay(0.2, 0.5, 0.8, 100);
-delay.connect( masterChannelStrip );
+// Create some yummy delay and reverb
+var reverb = new audio.io.Reverb(null, 15);
+reverb.connect( masterChannelStrip );
+
+var delay = new audio.io.StereoDelay(0.2, 0.2, 0.8, 5);
+delay.connect( reverb );
 
 // Create a filter (lowpass, 200hz, 1unit of resonance, and 100% dry/wet)
-var filter = new audio.io.Filter('highpass', 200, 1, 100);
+var filter = new audio.io.Filter('lowpass', 800, 13, null, 100);
 filter.connect( delay );
 
 
 
-// Create a playable oscillator (not single-shot) and
-// allow it to have up to 16 voices, using a sine wave,
-// and set the retriggering argument to true, and
-// volumeControl curve to x*x
-var playableOsc = new audio.io.Oscillator( 'sawtooth', 16, true, 'x*x' );
+// Lets make us a multi-osc.... ;)
+var playableOsc = new audio.io.MultiOscillator({
+	type: 'sawtooth',
+	numOscs: 2,
+	detune: 50,
+	detuneType: 'center'
+});
 playableOsc.connect( filter );
 
 
 
 
-// Create a new LFO instance at 3hz and 300 depth units
-var pitchLfo = new audio.io.LFO( 'sine', 3, 100 );
-pitchLfo.start();
-
-// Make another LFO at 1hz and 5 depth units
-var lfoMod = new audio.io.LFO('sawtooth', 0.5, 10);
-lfoMod.start();
-
-// Aaaand another LFO to mod the filter cutoff
-var filterLfo = new audio.io.LFO('sine', 0.2, 4000);
+var filterLfo = new audio.io.LFO('sine', 5, 700);
 filterLfo.start();
-
-// Connect the lfoMod to the pitchLfo frequency value,
-// so we end up with a nice off-beat filter wobble.
-pitchLfo.connectMod(lfoMod, 'frequency');
-filter.connectMod(pitchLfo, 'frequency');
-
-//
-playableOsc.connectMod(pitchLfo, 'pitch');
 
 filter.connectMod(filterLfo, 'frequency');
