@@ -14,8 +14,12 @@ audio.io.Effect = audio.io.Audio.extend({
 		// Connect wet and dry to output
 		this.dry.connect( this.output );
 		this.wet.connect( this.output );
+
+		this.active = 1;
 	},
 
+	// FIXME: Correct this so it works with dry/wet rather than
+	//	      effect/output.
 	bypass: function( bool ) {
 		// If bool is truthy and we're already
 		// connected to the effect, go ahead and disconnect...
@@ -63,10 +67,6 @@ audio.io.Filter = audio.io.Effect.extend({
 
 		// ... and the filter to the wet control.
 		this.effect.connect( this.wet );
-
-		// Mark this Node as active, so if/when .bypass() is called
-		// it will behave as expected.
-		this.active = 1;
 	},
 
 	setType: function( type ) {
@@ -105,16 +105,87 @@ audio.io.Reverb = audio.io.Effect.extend({
 
 		// Set wet/dry level
 		this.setDryWet( dryWet || 50 );
-
-		this.active = 1;
 	},
 
 	setImpulse: function( impulseFilename ) {
-
 		var that = this;
 
 		this._io.utils.loadFileIntoBuffer('../impulses/' + impulseFilename, function(buffer) {
 			that.effect.buffer = buffer;
 		});
+	}
+});
+
+
+audio.io.SimpleDelay = audio.io.Effect.extend({
+	initialize: function( time, feedback, dryWet ) {
+		this.effect = this._io.context.createDelayNode();
+		this.feedback = this._io.context.createGainNode();
+
+		this.setFeedback( 0.5 );
+		this.setTime( 0.1 );
+
+		this.input.connect(this.effect);
+		this.effect.connect(this.feedback);
+		this.feedback.connect(this.wet);
+		this.feedback.connect(this.effect);
+
+		this.setDryWet(dryWet || 50);
+	},
+	setTime: function( time ) {
+		this.effect.delayTime.value = +time;
+	},
+	setFeedback: function( feedback ) {
+		this.feedback.gain.value = +feedback || 0.5;
+	}
+});
+
+
+audio.io.StereoDelay = audio.io.Effect.extend({
+	initialize: function( timeL, timeR, feedback, dryWet ) {
+		this.effectL = this._io.context.createDelayNode();
+		this.effectR = this._io.context.createDelayNode();
+
+		this.feedbackL = this._io.context.createGainNode();
+		this.feedbackR = this._io.context.createGainNode();
+
+		this.splitter = this._io.context.createChannelSplitter(2);
+		this.merger = this._io.context.createChannelMerger(2);
+
+
+		this.input.connect(this.splitter);
+
+		this.splitter.connect(this.effectL, 0, 0);
+		this.splitter.connect(this.effectR, 0, 0);
+
+		this.effectL.connect(this.feedbackL);
+		this.effectR.connect(this.feedbackR);
+
+		this.feedbackL.connect(this.effectL);
+		this.feedbackR.connect(this.effectR);
+
+		this.feedbackL.connect(this.merger, 0, 0);
+		this.feedbackR.connect(this.merger, 0, 1);
+
+		this.merger.connect(this.wet);
+
+		this.setTime( timeL, timeR );
+		this.setFeedback( feedback );
+		this.setDryWet(dryWet || 100);
+	},
+
+	setLeftTime: function( time ) {
+		this.effectL.delayTime.value = +time;
+	},
+	setRightTime: function( time ) {
+		this.effectR.delayTime.value = +time;
+	},
+	setTime: function(l, r) {
+		this.setLeftTime(l);
+		this.setRightTime(r);
+	},
+	setFeedback: function( feedback ) {
+		this.feedbackL.gain.value = +feedback || 0.5;
+		this.feedbackR.gain.value = +feedback || 0.5;
 	}
 });

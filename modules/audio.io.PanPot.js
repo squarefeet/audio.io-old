@@ -20,8 +20,8 @@ audio.io.StereoPanPot = audio.io.Audio.extend({
 		this.input.connect(this.splitter);
 
 		// ...then left/right splitter out to each gain node
-		this.splitter.connect(this.leftGain, 0);
-		this.splitter.connect(this.rightGain, 0);
+		this.splitter.connect(this.leftGain, 0, 0);
+		this.splitter.connect(this.rightGain, 0, 0);
 
 		// ...then connect the left/right gain nodes back into the merger
 		this.leftGain.connect(this.merger, 0, 0);

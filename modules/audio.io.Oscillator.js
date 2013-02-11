@@ -63,12 +63,8 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 			this.envelope.events.fire('start');
 		}
 
-		// FIXME: Why doesn't this modulate?
-		//        Setting it to modulate
-		//        this.volumeControl.output.gain works fine :S
 		if(this.modSources.pitch) {
 			this.modSources.pitch.output.connect( this.osc.frequency );
-			// this.modSources.pitch.osc.connect( this.volumeControl.output.gain );
 		}
 
 
@@ -78,10 +74,7 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 	stop: function( delay, immediate ) {
 		var that = this;
 
-		if(!this.useEnvelope) {
-			this.osc.stop( delay );
-		}
-		else if(immediate) {
+		if(!this.useEnvelope || immediate) {
 			this.osc.stop( delay );
 		}
 		else {

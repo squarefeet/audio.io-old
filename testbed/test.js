@@ -35,13 +35,13 @@ midi.events.on('pitchbend', function(channel, something, value) {
 });
 
 
-// Create some yummy reverb
-var reverb = new audio.io.Reverb();
-reverb.connect( masterChannelStrip );
+// Create some yummy delay
+var delay = new audio.io.StereoDelay(0.2, 0.5, 0.8, 100);
+delay.connect( masterChannelStrip );
 
 // Create a filter (lowpass, 200hz, 1unit of resonance, and 100% dry/wet)
-var filter = new audio.io.Filter('lowpass', 200, 1, 100);
-filter.connect( reverb );
+var filter = new audio.io.Filter('highpass', 200, 1, 100);
+filter.connect( delay );
 
 
 

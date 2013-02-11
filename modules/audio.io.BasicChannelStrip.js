@@ -13,7 +13,7 @@ audio.io.BasicChannelStrip = audio.io.Audio.extend({
 		this.panPot.connect( this.volumeControl );
 
 		// Connect the volume node to the output
-		this.volumeControl.connect( this.output );
+		this.input.connect( this.output );
 
 		// Store "modulatable" references
 		this.modAttributes.volume = this.volumeControl.mods.volume;
