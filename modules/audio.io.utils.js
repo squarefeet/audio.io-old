@@ -150,5 +150,28 @@ audio.io.utils = {
 
 	degToRad: function( deg ) {
 		return deg * Math.PI / 180;
-	}
+	},
+
+	angleFromValue: function(from, to, value) {
+        var range = to - from,
+            offset = to - range;
+
+
+        // var degreeAsPercent = (270 / 100) * 1;
+        //
+        // value = value + offset;
+        //
+        // degreeAsPercent *= value;
+
+        // var degreeAsPercent = (270 / to - offset) * (value + offset)
+
+
+        var degreeAsPercent = (270 / range) * (value + offset);
+
+        if(offset < 0) {
+            degreeAsPercent -= 90;
+        }
+
+        return degreeAsPercent + 135;
+    }
 };

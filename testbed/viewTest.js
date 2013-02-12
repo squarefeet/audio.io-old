@@ -21,3 +21,5 @@ panPot = new audio.io.PanPotView({
 
 document.body.appendChild(dial.el);
 document.body.appendChild(panPot.el);
+
+
