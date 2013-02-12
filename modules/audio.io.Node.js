@@ -38,52 +38,5 @@ audio.io.Node = function () {
 	}
 };
 
-// Since this is the base for all other nodes, there won't
-// be any specific functionality when another node is connected
-// to an out port, so just use the placeholder NO-OP function
-// from audio.io.
-audio.io.Node.prototype.onOutputConnect = audio.io.noop;
-
-// audio.io.Node.prototype.connectTo = function( source ) {
-// 	if(!source instanceof audio.io.Node) {
-// 		console.log('Please pass a valid audio.io.Node object as your', type, 'source.');
-// 	}
-
-// 	this.outputs.push( source );
-// 	this.onOutputConnect( source );
-
-// 	return this;
-// };
-
-
-// audio.io.Node.prototype.getPathToNode = function( node ) {
-
-// 	if(this instanceof this._io.LFO) {
-// 		if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
-// 			return node.gain.gain;
-// 		}
-// 		else if( node instanceof this._io.BasicChannelStrip ) {
-// 			return node.volumeControl.gain.gain;
-// 		}
-// 		else {
-// 			return node;
-// 		}
-// 	}
-
-// 	if(node instanceof this._io.VolumeControl || node instanceof this._io.Envelope) {
-// 		return node.gain;
-// 	}
-// 	else if( node instanceof this._io.BasicChannelStrip ) {
-// 		return node.volumeControl.gain;
-// 	}
-// 	else if (node instanceof this._io.PanPot) {
-// 		return node.panner;
-// 	}
-
-// 	else {
-// 		return node;
-// 	}
-// };
-
 // Make this object extendable.
 audio.io.Node.extend = window.extend;
