@@ -1,17 +1,13 @@
 audio.io.PanPotController = audio.io.Controller.extend({
 	initialize: function( options ) {
-
 		var that = this;
 
 		// Create model
-		this.setModel( audio.io.DialModel, options);
+		this.setModel( audio.io.DialModel);
 		this.model.set(options);
-
-
 
 		// Create the view
 		this.setView( audio.io.PanPotView );
-
 
 		// Create the Node
 		this.node = new audio.io.StereoPanPot();
@@ -33,7 +29,10 @@ audio.io.PanPotController = audio.io.Controller.extend({
         this.view.onControllerAttach();
 
 
-		// Render the view
+		// Render the view (doing this here because it's only at
+		// this point that the view knows who it's controller is
+		// and so can get values from it in order to render
+		// correctly).
 		this.view.render();
 	}
 });
