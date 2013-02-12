@@ -58,7 +58,7 @@ audio.io.DialView = audio.io.View.extend({
     initialize: function() {
        _.bindAll(this);
 
-       this.model = new UI.Models.Dial(this.options);
+       this.model = new audio.io.DialModel(this.options);
        this.model.on('change', this.draw);
 
        document.addEventListener('mousemove', this.onmousemove, false);
@@ -124,9 +124,9 @@ audio.io.DialView = audio.io.View.extend({
 
         var valueEnd = this.model.angleFromValue();
 
-        startAngle = Utils.degToRad(startAngle);
-        endAngle = Utils.degToRad(endAngle);
-        valueEnd = Utils.degToRad(valueEnd);
+        startAngle = audio.io.utils.degToRad(startAngle);
+        endAngle = audio.io.utils.degToRad(endAngle);
+        valueEnd = audio.io.utils.degToRad(valueEnd);
 
 
         // Draw the outline
@@ -164,7 +164,7 @@ audio.io.DialView = audio.io.View.extend({
 });
 
 
-audio.io.PanPot = audio.io.DialView.extend({
+audio.io.PanPotView = audio.io.DialView.extend({
     events: {
         'dblclick': 'dblclick',
         'mousedown': 'mousedown'
@@ -191,10 +191,10 @@ audio.io.PanPot = audio.io.DialView.extend({
 
         var valueEnd = this.model.angleFromValue();
 
-        valueStartAngle = Utils.degToRad(valueStartAngle);
-        startAngle = Utils.degToRad(startAngle);
-        endAngle = Utils.degToRad(endAngle);
-        valueEnd = Utils.degToRad(valueEnd);
+        valueStartAngle = audio.io.utils.degToRad(valueStartAngle);
+        startAngle = audio.io.utils.degToRad(startAngle);
+        endAngle = audio.io.utils.degToRad(endAngle);
+        valueEnd = audio.io.utils.degToRad(valueEnd);
 
 
         // Draw the outline

@@ -43,16 +43,16 @@ var delay = new audio.io.StereoDelay(0.2, 0.2, 0.8, 5);
 delay.connect( reverb );
 
 // Create a filter (lowpass, 200hz, 1unit of resonance, and 100% dry/wet)
-var filter = new audio.io.Filter('lowpass', 800, 13, null, 100);
+var filter = new audio.io.Filter('lowpass', 12000, 13, null, 100);
 filter.connect( delay );
 
 
 
 // Lets make us a multi-osc.... ;)
 var playableOsc = new audio.io.MultiOscillator({
-	type: 'sawtooth',
-	numOscs: 2,
-	detune: 50,
+	type: 'triangle',
+	numOscs: 4,
+	detune: 1200,
 	detuneType: 'center'
 });
 playableOsc.connect( filter );

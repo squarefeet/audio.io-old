@@ -145,5 +145,10 @@ audio.io.utils = {
         };
 
         xhr.send(null);
+	},
+
+
+	degToRad: function( deg ) {
+		return deg * Math.PI / 180;
 	}
 };
