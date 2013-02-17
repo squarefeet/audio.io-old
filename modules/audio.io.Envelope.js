@@ -24,13 +24,15 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 	},
 
 	setAttackTime: function( value ) {
-		this.attackTime = +value || 0.05;
+		this.attackTime = +value || 0.1;
 	},
 	setDecayTime: function( value ) {
 		this.decayTime = +value || 0.4;
 	},
 	setReleaseTime: function( value ) {
-		this.releaseTime = +value || 0.01;
+		value = +value || 0.08;
+		value = Math.max(value, 0.08);
+		this.releaseTime = value;
 	},
 	setSustainLevel: function( value ) {
 		this.sustainLevel = +value || 0.5;

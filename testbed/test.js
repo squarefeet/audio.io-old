@@ -8,6 +8,33 @@ var masterChannelStrip = new audio.io.BasicChannelStrip('x*x', 50);
 masterChannelStrip.connect(audio.io.masterOut);
 
 
+var analyser = new audio.io.Analyser(2048, 100, function( data ) {
+	var length = data.length,
+		num_bars = 1;
+
+	var bin_size = Math.floor(length / num_bars);
+
+	for (var i=0; i < num_bars; ++i) {
+		var sum = 0;
+
+		for (var j=0; j < bin_size; ++j) {
+			sum += data[(i * bin_size) + j];
+		}
+
+		// Calculate the average frequency of the samples in the bin
+		var average = sum / bin_size;
+
+		// Draw the bars on the canvas
+		// var bar_width = canvas.width / num_bars;
+		// var scaled_average = (average / 256) * canvas.height;
+		console.log((average / 256) * 50);
+		// canvas_context.fillRect(i * bar_width, canvas.height, bar_width - 2, -scaled_average);
+	}
+});
+
+analyser.connect(masterChannelStrip);
+analyser.start();
+
 function onNoteOn(channel, freq, velocity) {
 	if(velocity === 0) {
 		playableOsc.stop( freq );
@@ -37,7 +64,7 @@ midi.events.on('pitchbend', function(channel, something, value) {
 
 // Create some yummy delay and reverb
 var reverb = new audio.io.Reverb(null, 15);
-reverb.connect( masterChannelStrip );
+reverb.connect( analyser );
 
 var delay = new audio.io.StereoDelay(0.2, 0.2, 0.8, 5);
 delay.connect( reverb );

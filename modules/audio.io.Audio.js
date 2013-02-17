@@ -30,10 +30,15 @@ audio.io.Audio = audio.io.Node.extend({
 	},
 
 	connect: function( source ) {
+
+		if( source instanceof this._io.Controller ) {
+			this.output.connect( source.node.input );
+		}
+
 		// If we're dealing with an audio.io.Audio node,
 		// we know we have an input to connect to, so
 		// go ahead and do just that.
-		if( source instanceof this._io.Audio ) {
+		else if( source instanceof this._io.Audio ) {
 			this.output.connect(source.input);
 		}
 

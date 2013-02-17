@@ -1,0 +1,21 @@
+<body>
+	<script type="text/javascript">
+		var audioContext = new webkitAudioContext();
+		var merger = audioContext.createChannelMerger(2);
+		merger.connect(audioContext.destination);
+
+		var osc = audioContext.createOscillator();
+		osc.frequency.value = 500;
+		osc.connect( merger, 0, 0 );
+
+		// workaround here:
+		var gain= audioContext.createGainNode();
+		gain.gain.value = 0.0;
+		osc.connect( gain );
+		gain.connect( merger, 0, 1 );
+		// end workaround
+
+		osc.start( audioContext.currentTime );
+		osc.stop( audioContext.currentTime + 2 );
+	</script>
+</body>

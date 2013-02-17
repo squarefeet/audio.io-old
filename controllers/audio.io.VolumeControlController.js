@@ -1,17 +1,23 @@
-audio.io.PanPotController = audio.io.Controller.extend({
+audio.io.VolumeControlController = audio.io.Controller.extend({
 	initialize: function( options ) {
 		var that = this;
 
 		// Create model
-		this.setModel( audio.io.DialModel);
+		this.setModel( audio.io.VolumeControlModel);
 		this.model.set(options);
 
 		// Create the view
-		this.setView( audio.io.PanPotView );
+		this.setView( audio.io.VolumeControlView );
 
-		// Create the Node
-		this.node = new audio.io.StereoPanPot();
-		this.node.controller = this;
+		// Create the Nodes
+		this.node = new audio.io.VolumeControl('x*x', 50);
+		this.analyser = new audio.io.StereoAnalyser(2048, 50, function(dataL, dataR) {
+			that.view.draw(dataL, dataR);
+		});
+
+		this.node.input.connect(this.analyser.input);
+		this.analyser.output.connect(this.node.output);
+
 
 		// Bind a change event on the model to the node's
 		// setPosition method, so that when the view changes
@@ -19,7 +25,7 @@ audio.io.PanPotController = audio.io.Controller.extend({
 		// (via this controller), and thus fire a change
 		// event on the model...
 		this.model.on('change:value', function(model, value) {
-			that.node.setPosition.call(that.node, value);
+			that.node.setVolume.call(that.node, value);
 		});
 
 		// Tell the model who we are so the view can
@@ -29,6 +35,7 @@ audio.io.PanPotController = audio.io.Controller.extend({
         this.model.on('change', this.view.draw, this.view);
         this.view.onControllerAttach();
 
+        this.analyser.start();
 
 		// Render the view (doing this here because it's only at
 		// this point that the view knows who it's controller is

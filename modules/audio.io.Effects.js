@@ -162,7 +162,7 @@ audio.io.StereoDelay = audio.io.Effect.extend({
 		this.input.connect(this.splitter);
 
 		this.splitter.connect(this.effectL, 0);
-		this.splitter.connect(this.effectR, 0);
+		this.splitter.connect(this.effectR, 1);
 
 		this.effectL.connect(this.feedbackL);
 		this.effectR.connect(this.feedbackR);

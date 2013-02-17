@@ -224,29 +224,23 @@ audio.io.MultiOscillator = audio.io.Audio.extend({
 			// Connect osc to all available outputs.
 			osc.connect( this.output );
 
+			this.instances[freq].push(osc);
+
 			// Turn it on, baby!
 			osc.start( delay );
-
-			this.instances[freq].push(osc);
 		}
 
-
-
-		// // Store this osc
-		// this.instances[freq] = osc;
 		this.instanceOrder.push(freq);
-
-
-
 	},
 
 	stop: function( freq, delay, immediate ) {
 
 		var instance = this.instances[freq];
 
+		console.log(freq, delay, immediate)
+
 		for(var i = 0; i < instance.length; ++i) {
-			this.instances[freq][i].stop(+delay || 0, immediate);
+			instance[i].stop(+delay || 0, immediate);
 		}
-		// this.instances[ freq ].stop( +delay || 1, immediate );
 	}
 });

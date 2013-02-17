@@ -20,8 +20,8 @@ audio.io.StereoPanPot = audio.io.Audio.extend({
 		this.input.connect(this.splitter);
 
 		// ...then left/right splitter out to each gain node
-		this.splitter.connect(this.leftGain, 0, 0);
-		this.splitter.connect(this.rightGain, 0, 0);
+		this.splitter.connect(this.leftGain, 0);
+		this.splitter.connect(this.rightGain, 1);
 
 		// ...then connect the left/right gain nodes back into the merger
 		this.leftGain.connect(this.merger, 0, 0);
@@ -42,14 +42,18 @@ audio.io.StereoPanPot = audio.io.Audio.extend({
 		value = Math.min(50, value);
 		value = Math.max(-50, value);
 
+		value |= 0;
+
+		if(this.controller) {
+			this.controller.set('value', value);
+		}
+
 		value = this._io.utils.scaleNumber(value, -50, 50, -1, 1);
 
 		// Optimise for center
 		if(value === 0.5) {
 			this.leftGain.gain.value = this.rightGain.gain.value = 1;
 		}
-
-
 		else if(value > 0) {
 			this.leftGain.gain.value = 1 - value;
 			this.rightGain.gain.value = 1;
