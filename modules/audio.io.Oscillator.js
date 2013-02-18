@@ -234,10 +234,7 @@ audio.io.MultiOscillator = audio.io.Audio.extend({
 	},
 
 	stop: function( freq, delay, immediate ) {
-
 		var instance = this.instances[freq];
-
-		console.log(freq, delay, immediate)
 
 		for(var i = 0; i < instance.length; ++i) {
 			instance[i].stop(+delay || 0, immediate);

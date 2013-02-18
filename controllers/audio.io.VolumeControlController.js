@@ -10,13 +10,13 @@ audio.io.VolumeControlController = audio.io.Controller.extend({
 		this.setView( audio.io.VolumeControlView );
 
 		// Create the Nodes
-		this.node = new audio.io.VolumeControl('x*x', 50);
-		this.analyser = new audio.io.StereoAnalyser(2048, 50, function(dataL, dataR) {
-			that.view.draw(dataL, dataR);
+		this.node = new audio.io.VolumeControl(options.curve, options.value);
+		this.analyser = new audio.io.LevelAnalyser(2048, 50, function(data) {
+			that.view.draw(data);
 		});
 
-		this.node.input.connect(this.analyser.input);
-		this.analyser.output.connect(this.node.output);
+		this.node.output.connect(this.analyser.input);
+		this.analyser.output.connect(this._io.masterOut);
 
 
 		// Bind a change event on the model to the node's
@@ -32,10 +32,8 @@ audio.io.VolumeControlController = audio.io.Controller.extend({
 		// access this controllers .get and .set methods
 		// (which pass on the request to the model).
 		this.view.controller = this;
-        this.model.on('change', this.view.draw, this.view);
+        // this.model.on('change', this.view.draw, this.view);
         this.view.onControllerAttach();
-
-        this.analyser.start();
 
 		// Render the view (doing this here because it's only at
 		// this point that the view knows who it's controller is

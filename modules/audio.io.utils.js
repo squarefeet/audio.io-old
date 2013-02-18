@@ -108,11 +108,6 @@ audio.io.utils = {
 	},
 
 
-	keyCodeToMIDINoteMap: {
-
-	},
-
-
 	getMIDINoteFromKey: function( key, octave ) {
 		var positionInScale = audio.io.keyboard.notes.indexOf(key);
 
@@ -120,6 +115,7 @@ audio.io.utils = {
 
 		return positionInScale + (octave * 12);
 	},
+
 
 	loadFileIntoBuffer: function( path, callback ) {
 		var xhr = new XMLHttpRequest();
@@ -137,7 +133,7 @@ audio.io.utils = {
                         	callback( buffer );
                     	},
                     	function (e) {
-                        	if(e) console.log("Error loading impulse:", e);
+                        	if(e) console.log("Error loading audio file:", e);
                     	}
                     );
                 }
@@ -152,21 +148,11 @@ audio.io.utils = {
 		return deg * Math.PI / 180;
 	},
 
+
 	angleFromValue: function(from, to, value) {
         var range = to - from,
-            offset = to - range;
-
-
-        // var degreeAsPercent = (270 / 100) * 1;
-        //
-        // value = value + offset;
-        //
-        // degreeAsPercent *= value;
-
-        // var degreeAsPercent = (270 / to - offset) * (value + offset)
-
-
-        var degreeAsPercent = (270 / range) * (value + offset);
+            offset = to - range,
+        	degreeAsPercent = (270 / range) * (value + offset);
 
         if(offset < 0) {
             degreeAsPercent -= 90;

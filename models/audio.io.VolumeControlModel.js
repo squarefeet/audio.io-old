@@ -10,7 +10,7 @@ audio.io.VolumeControlModel = audio.io.Model.extend({
         width: 30,
         height: 70,
         label: '',
-        data: null
+        curve: 'x*x'
     },
 
     initialize: function() {

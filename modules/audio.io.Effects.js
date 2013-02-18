@@ -162,7 +162,7 @@ audio.io.StereoDelay = audio.io.Effect.extend({
 		this.input.connect(this.splitter);
 
 		this.splitter.connect(this.effectL, 0);
-		this.splitter.connect(this.effectR, 1);
+		this.splitter.connect(this.effectR, 0);
 
 		this.effectL.connect(this.feedbackL);
 		this.effectR.connect(this.feedbackR);
@@ -193,5 +193,115 @@ audio.io.StereoDelay = audio.io.Effect.extend({
 	setFeedback: function( feedback ) {
 		this.feedbackL.gain.value = +feedback || 0.5;
 		this.feedbackR.gain.value = +feedback || 0.5;
+	}
+});
+
+
+audio.io.RingMod = audio.io.Effect.extend({
+	initialize: function(freq, dryWet) {
+		this.ringMod = this._io.context.createGainNode();
+		this.osc = this._io.context.createOscillator();
+
+		this.osc.type = this.osc.SINE;
+
+		this.osc.connect(this.ringMod.gain);
+
+		this.setFrequency(freq);
+		this.setDryWet( dryWet );
+
+		this.ringMod.gain.value = 0;
+		this.input.connect(this.ringMod);
+		this.ringMod.connect(this.wet);
+		this.osc.start(0);
+	},
+
+	setFrequency: function( freq ) {
+		this.osc.frequency.value = +freq;
+	}
+});
+
+
+audio.io.Utility = audio.io.Audio.extend({
+	initialize: function() {
+		this.splitter = this._io.context.createChannelSplitter(2);
+		this.merger = this._io.context.createChannelMerger(2);
+
+		this.left = this._io.context.createGainNode();
+		this.right = this._io.context.createGainNode();
+
+		this.input.connect(this.splitter);
+
+		this.splitter.connect(this.left, 0);
+		this.splitter.connect(this.right, 1);
+
+		this.left.connect(this.merger, 0, 0);
+		this.right.connect(this.merger, 0, 1);
+
+		this.merger.connect(this.output);
+	},
+
+	setLeftPhase: function( inverted ) {
+		if(inverted) {
+			this.left.gain.value = -this.left.gain.value;
+		}
+		else {
+			this.left.gain.value = Math.abs(this.left.gain.value);
+		}
+	},
+	setRightPhase: function( inverted ) {
+		if(inverted) {
+			this.right.gain.value = -this.right.gain.value;
+		}
+		else {
+			this.right.gain.value = Math.abs(this.right.gain.value);
+		}
+	}
+});
+
+
+
+audio.io.Equalizer = audio.io.Effect.extend({
+	_frequencies: [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000],
+
+	initialize: function(bands) {
+		this.numBands = +bands || 10;
+
+		this.filtersGain = this._io.context.createGainNode();
+
+		this.filtersGain.connect(this.wet);
+
+		this.filtersGain.gain.value = 1 / this.numBands;
+
+		this.filters = [];
+		this.createFrequencyBands();
+
+
+
+		this.setDryWet(100);
+	},
+
+	createFrequencyBands: function() {
+		var filter;
+
+		for(var i = 0, il = this.numBands; i < il; i += 1) {
+			filter = this._io.context.createBiquadFilter();
+			filter.type = filter.PEAKING;
+			filter.gain.value = 1.0;
+			filter.frequency.value = this._frequencies[i];
+			filter.Q.value = 2;
+
+			this.input.connect(filter);
+			filter.connect(this.filtersGain);
+
+			this.filters.push(filter);
+		}
+	},
+
+	setPoint: function( filterIndex, param, value) {
+		var filter;
+
+		if(filter = this.filters[ filterIndex ]) {
+			filter[param].value = +value;
+		}
 	}
 });

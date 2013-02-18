@@ -50,7 +50,7 @@ audio.io.MIDI = audio.io.Node.extend({
 
 		// If we're dealing with a noteOn event, then automatically
 		// translate the MIDI note number into a frequency value.
-		if(details[0] === 'noteOn') {
+		if(details[0] === 'noteOn' || details[0] === 'noteOff') {
 			byte2 = audio.io.utils.midiNoteToFreq( byte2 );
 		}
 

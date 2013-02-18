@@ -51,7 +51,7 @@ audio.io.StereoPanPot = audio.io.Audio.extend({
 		value = this._io.utils.scaleNumber(value, -50, 50, -1, 1);
 
 		// Optimise for center
-		if(value === 0.5) {
+		if(value === 0) {
 			this.leftGain.gain.value = this.rightGain.gain.value = 1;
 		}
 		else if(value > 0) {

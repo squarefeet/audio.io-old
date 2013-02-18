@@ -26,10 +26,6 @@ audio.io.VolumeControlView = audio.io.View.extend({
             max = this.controller.get('to');
 
 
-        //     fine = this.controller.get('fine'),
-        //     range = this.controller.get('range')
-
-
         var absValue = this.controller.get('value') + value;
 
         absValue = Math.min(max, Math.max(min, absValue));
@@ -57,7 +53,6 @@ audio.io.VolumeControlView = audio.io.View.extend({
     onControllerAttach: function() {
         this.createElements();
         this.setupCanvas();
-        this.initValues();
     },
 
     render: function() {
@@ -90,85 +85,91 @@ audio.io.VolumeControlView = audio.io.View.extend({
         this.context = this.canvas.getContext('2d');
     },
 
-    initValues: function() {
-        this.clearColor = 'rgba(0,0,0,0)';
-    },
-
     clearCanvas: function(ctx) {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     },
 
-    draw: function( dataL, dataR ) {
 
-        if(!dataL || !dataR) return;
+    draw: function( data ) {
 
         var ctx = this.context,
             width = this.controller.get('width'),
             height = this.controller.get('height'),
-            length = dataL.length,
             value = this.controller.get('value'),
+            active = this.controller.get('active'),
             scaleNumber = audio.io.utils.scaleNumber,
-            scaledValue = scaleNumber(value, 0, 100, 0, height);
+            scaledValue = scaleNumber(value, 0, 100, 0, height),
+            paddingSide = 10,
+            backgroundWidth = (width - paddingSide*2);
 
         this.clearCanvas(ctx);
 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        ctx.fillRect(10, 0, width-20, height);
+        ctx.fillStyle = active ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(paddingSide, 0, backgroundWidth, height);
 
-        var sumL = 0,
-            sumR = 0;
+        if(data) {
+            var length = data.length,
+                sum = 0,
+                max = 0,
+                level = 0;
 
-        for (var j=0; j < length; ++j) {
-            sumL += dataL[j];
+            for (var j=0; j < length; ++j) {
+                sum += data[j];
+                max = Math.max(max, data[j]);
+            }
+
+            level = max * height;
+            level = scaleNumber(level, 0, height, 0, value);
+
+            this.controller.set('level', level);
+
+            // add linear gradient
+            var grd = ctx.createLinearGradient(0, height, 0, 0);
+            grd.addColorStop(0, '#6ac454');
+            grd.addColorStop(0.7, '#6ac454');
+            grd.addColorStop(0.8, '#f1e800');
+            grd.addColorStop(0.9, '#ff0000');
+            grd.addColorStop(1, '#ff0000');
+
+            ctx.fillStyle = grd;
+
+            ctx.fillRect(paddingSide, height, backgroundWidth, -level);
         }
-        for (var j=0; j < length; ++j) {
-            sumR += dataR[j];
-        }
-
-        // Calculate the average frequency of the samples in the bin
-        var averageL = sumL / length,
-            averageR = sumR / length
-
-        // Draw the bars on the canvas
-        var barWidth = this.canvas.width / 2;
-        var scaled_averageL = (averageL / 100) * height,
-            scaled_averageR = (averageR / 100) * height;
 
 
-        scaled_averageL = scaleNumber(scaled_averageL, 0, height, 0, value);
-        scaled_averageR = scaleNumber(scaled_averageR, 0, height, 0, value);
+        ctx.fillStyle = active ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.4)';
 
+        // Draw triangles
+        var triangleLeftX = paddingSide-1,
+            triangleLeftY = this.canvas.height - scaledValue,
+            triangleHeight = 4,
+            triangleWidth = 5;
 
-        // add linear gradient
-        var grd = ctx.createLinearGradient(0, height, 0, 0);
-        grd.addColorStop(0, '#6ac454');
-        grd.addColorStop(0.7, '#6ac454');
-        grd.addColorStop(0.8, '#f1e800');
-        grd.addColorStop(0.9, '#ff0000');
-        grd.addColorStop(1, '#ff0000');
+        ctx.beginPath();
+        ctx.moveTo(triangleLeftX, triangleLeftY);
+        ctx.lineTo(triangleLeftX - triangleWidth, triangleLeftY - triangleHeight);
+        ctx.lineTo(triangleLeftX - triangleWidth, triangleLeftY + triangleHeight);
+        ctx.lineTo(triangleLeftX, triangleLeftY);
+        ctx.fill();
+        ctx.closePath();
 
-        ctx.fillStyle = grd;
+        var triangleRightX = width - paddingSide+2;
 
-        ctx.fillRect(1, this.canvas.height, barWidth - 2, -scaled_averageL);
-        ctx.fillRect(barWidth+1, this.canvas.height, barWidth - 2, -scaled_averageR);
+        ctx.beginPath();
+        ctx.moveTo(triangleRightX, triangleLeftY);
+        ctx.lineTo(triangleRightX + triangleWidth, triangleLeftY - triangleHeight);
+        ctx.lineTo(triangleRightX + triangleWidth, triangleLeftY + triangleHeight);
+        ctx.lineTo(triangleRightX, triangleLeftY);
+        ctx.fill();
+        ctx.closePath();
 
-
-
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        ctx.fillRect(0, this.canvas.height-scaledValue-1, this.canvas.width, 2);
-
-
-        // this.updateText();
+        this.updateText();
     },
 
     updateText: function() {
-        var value = this.controller.get('value');
-
-        if(this.controller.get('range') < 100 && this.controller.get('fine')) {
-            value = value.toFixed(2);
-        }
+        var value = this.controller.get('level');
 
         this.label.textContent = this.controller.get('label') || '';
-        this.value.textContent = value;
+        this.value.textContent = parseInt(value);
     }
 });

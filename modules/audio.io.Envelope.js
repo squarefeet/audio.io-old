@@ -30,8 +30,8 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 		this.decayTime = +value || 0.4;
 	},
 	setReleaseTime: function( value ) {
-		value = +value || 0.08;
-		value = Math.max(value, 0.08);
+		value = +value || 0.1;
+		value = Math.max(value, 0.1);
 		this.releaseTime = value;
 	},
 	setSustainLevel: function( value ) {

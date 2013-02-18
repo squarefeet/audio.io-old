@@ -55,6 +55,9 @@ audio.io.StereoAnalyser = audio.io.Analyser.extend({
 		this.analyserL.connect(this.merger, 0, 0);
 		this.analyserR.connect(this.merger, 0, 1);
 
+		this.input.connect(this.jsNode);
+		this.jsNode.connect(this.output);
+
 		this.merger.connect(this.output);
 	},
 
@@ -62,5 +65,40 @@ audio.io.StereoAnalyser = audio.io.Analyser.extend({
 		this.analyserL.getByteFrequencyData(this.dataL);
 		this.analyserR.getByteFrequencyData(this.dataR);
 		this.callback(this.dataL, this.dataR);
+	},
+
+	detectClipping: function(e) {
+		var bufferL = e.inputBuffer.getChannelData(0);
+		var bufferR = e.inputBuffer.getChannelData(0);
+
+		var clipping = false;
+
+		for(var i = 0, il = bufferL.length; i < il; ++i) {
+			if(Math.abs(bufferL[i]) >= 0.5) {
+				clipping = true;
+				console.log('clipping')
+				break;
+			}
+		}
+
+		// this.callback(bufferL, bufferR);
+	}
+});
+
+audio.io.LevelAnalyser = audio.io.Audio.extend({
+	initialize: function(granularity, interval, callback) {
+		this.granularity = granularity || 2048;
+		this.intervalDuration = interval || 100;
+		this.callback = callback || this._io.noop;
+
+		this.jsNode = this._io.context.createScriptProcessor(granularity, 1, 1);
+		this.jsNode.onaudioprocess = this.onProcess.bind(this);
+
+		this.input.connect(this.jsNode);
+		this.jsNode.connect(this.output);
+	},
+
+	onProcess: function(e) {
+		this.callback(e.inputBuffer.getChannelData(0));
 	}
 });
