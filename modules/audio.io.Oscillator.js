@@ -10,6 +10,8 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		this.osc = this._io.context.createOscillator();
 		this.osc.frequency.value = this.freq;
 
+		this.merger = this._io.context.createChannelMerger(2);
+
 		this.hasVolume = !!(curve || level);
 		this.useEnvelope = !!useEnvelope;
 
@@ -19,11 +21,15 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 
 			if(this.useEnvelope) {
 				this.envelope = new audio.io.BasicEnvelope();
-				this.osc.connect( this.envelope.input );
+				this.osc.connect(this.merger, 0, 0);
+				this.osc.connect(this.merger, 0, 1);
+				this.merger.connect( this.envelope.input );
 				this.envelope.connect( this.volumeControl );
 			}
 			else {
-				this.osc.connect( this.volumeControl );
+				this.osc.connect(this.merger, 0, 0);
+				this.osc.connect(this.merger, 0, 1);
+				this.merger.connect( this.volumeControl.input);
 			}
 
 			this.volumeControl.connect( this.output );
@@ -32,7 +38,9 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 			this.modAttributes.volume = this.volumeControl.output;
 		}
 		else {
-			this.osc.connect( this.output );
+			this.osc.connect(this.merger, 0, 0);
+			this.osc.connect(this.merger, 0, 1);
+			this.merger.connect( this.output );
 		}
 
 		// Store "modulatable" references
@@ -66,7 +74,6 @@ audio.io.MonoOscillator = audio.io.Audio.extend({
 		if(this.modSources.pitch) {
 			this.modSources.pitch.output.connect( this.osc.frequency );
 		}
-
 
 		this.osc.start( delay );
 	},
@@ -153,7 +160,6 @@ audio.io.Oscillator = audio.io.Audio.extend({
 		this.instances[ freq ].stop( +delay || 1, immediate );
 	}
 });
-
 
 
 audio.io.MultiOscillator = audio.io.Audio.extend({
