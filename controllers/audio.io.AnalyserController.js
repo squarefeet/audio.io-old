@@ -10,9 +10,16 @@ audio.io.AnalyserController = audio.io.Controller.extend({
 		this.setView( audio.io.AnalyserView );
 
 		// Create the Nodes
-		this.node = new audio.io.Analyser(2048, 20, function(data) {
-			that.view.draw(data);
-		});
+		this.node = new audio.io.Analyser(
+			this.model.get('granularity'),
+			this.model.get('updateRate'),
+			this.model.get('mindB'),
+			this.model.get('maxdB'),
+			this.model.get('smoothing'),
+			function(data) {
+				that.view.draw(data);
+			}
+		);
 
 		this.view.controller = this;
         this.view.onControllerAttach();

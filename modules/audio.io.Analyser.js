@@ -1,13 +1,16 @@
 audio.io.Analyser = audio.io.Audio.extend({
-	initialize: function(granularity, interval, callback) {
+	initialize: function(granularity, interval, mindB, maxdB, smoothing, callback) {
 		this.analyser = this._io.context.createAnalyser();
 
 		this.granularity = granularity || 2048;
 		this.intervalDuration = interval || 100;
 		this.callback = callback || this._io.noop;
 
-		this.analyser.smoothingTimeConstant = 0.75;
+		this.analyser.smoothingTimeConstant = (typeof smoothing === 'number' ? smoothing : 0.75);
 		this.analyser.fftSize = this.granularity;
+		this.analyser.minDecibels = mindB || -100;
+		this.analyser.maxDecibels = maxdB || 1;
+
 		this.data = new Uint8Array( this.analyser.frequencyBinCount );
 
 		this.input.connect(this.analyser);

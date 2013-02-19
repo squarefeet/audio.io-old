@@ -1,10 +1,29 @@
 // Create AudioContext and destination (audio.io.masterOut)
 audio.io.initialize();
 
-
 var analyser = new audio.io.AnalyserController({
+    width: 400,
+    height: 100,
 
+    updateRate: 20,
+    granularity: 2048,
+    smoothing: 0.7,
+
+    frequencyScaling: 'log',
+    dBScaling: 'linear',
+    display: 'bar',
+    drawPeak: true,
+    mindB: -192,
+    maxdB: 2,
+
+    backgroundColor: 'rgba(50, 50, 50, 1)',
+    bandColor: 'rgba(237, 112, 32, 1)',
+    peakColor: 'rgba(237, 112, 32, 0.3)',
+    barColor: 'rgba(100, 100, 100, 0.3)',
+    accentuatedBarColor: 'rgba(150, 150, 150, 1)',
+    textColor: 'rgba(150, 150, 150, 1)'
 });
+
 analyser.connect(audio.io.masterOut);
 analyser.appendTo(document.body);
 
@@ -33,6 +52,7 @@ function onNoteOn(channel, freq, velocity) {
 		playableOsc.stop( freq );
 	}
 	else {
+        console.log(freq);
 		playableOsc.start( freq, velocity );
 	}
 }
@@ -62,31 +82,31 @@ midi.events.on('pitchbend', function(channel, something, value) {
 });
 
 
-var eq = new audio.io.Equalizer(10);
-eq.connect(panPotController);
+// var eq = new audio.io.Equalizer(10);
+// eq.connect(panPotController);
 // eq.setPoint(5, 'gain', -50.0);
 
 var utility = new audio.io.Utility();
-utility.connect( eq );
+utility.connect( panPotController );
 utility.setLeftPhase(true);
 utility.setRightPhase(true);
 
-var reverb = new audio.io.Reverb(null, 50);
+var reverb = new audio.io.Reverb(null, 0);
 reverb.connect( utility );
 
 var delay = new audio.io.StereoDelay(0.7, 0.2, 0.8, 0);
 delay.connect( reverb );
 
-var ringmod = new audio.io.RingMod( 5, 100);
+var ringmod = new audio.io.RingMod( 5, 0);
 ringmod.connect(delay);
 
 
 
-// Lets make us a multi-osc.... ;)
+// Lets make us a multi-osc...
 var playableOsc = new audio.io.MultiOscillator({
-	type: 'triangle',
-	numOscs: 10,
-	detune: 100,
+	type: 'sawtooth',
+	numOscs: 1,
+	detune: 0,
 	detuneType: 'center'
 });
 playableOsc.connect( ringmod );

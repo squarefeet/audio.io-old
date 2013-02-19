@@ -39,7 +39,7 @@ audio.io.Keyboard = audio.io.Node.extend({
 			this.octave = Math.max(--this.octave, 0);
 		}
 		else if(letter === keys.UP_OCTAVE) {
-			this.octave = Math.min(++this.octave, 7);
+			this.octave = Math.min(++this.octave, 9);
 		}
 		else if(letter === keys.DOWN_VEL) {
 			this.velocity = Math.max(this.velocity - 10, 0);
