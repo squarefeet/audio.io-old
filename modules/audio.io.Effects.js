@@ -74,7 +74,7 @@ audio.io.Filter = audio.io.Effect.extend({
 		// ... and the filter to the wet control.
 		this.effect.connect( this.wet );
 
-		this.setDryWet(dryWet || 100);
+		this.setDryWet(dryWet);
 	},
 
 	setType: function( type ) {
@@ -112,7 +112,7 @@ audio.io.Reverb = audio.io.Effect.extend({
 
 
 		// Set wet/dry level
-		this.setDryWet( dryWet || 50 );
+		this.setDryWet( dryWet );
 	},
 
 	setImpulse: function( impulseFilename ) {
@@ -137,7 +137,7 @@ audio.io.SimpleDelay = audio.io.Effect.extend({
 
 		this.setFeedback( 0.5 );
 		this.setTime( 0.1 );
-		this.setDryWet(dryWet || 50);
+		this.setDryWet(dryWet);
 	},
 	setTime: function( time ) {
 		this.effect.delayTime.value = +time;
@@ -177,7 +177,7 @@ audio.io.StereoDelay = audio.io.Effect.extend({
 
 		this.setTime( timeL, timeR );
 		this.setFeedback( feedback );
-		this.setDryWet(dryWet || 0);
+		this.setDryWet(dryWet);
 	},
 
 	setLeftTime: function( time ) {
@@ -275,8 +275,6 @@ audio.io.Equalizer = audio.io.Effect.extend({
 		this.filters = [];
 		this.createFrequencyBands();
 
-
-
 		this.setDryWet(100);
 	},
 
@@ -288,7 +286,7 @@ audio.io.Equalizer = audio.io.Effect.extend({
 			filter.type = filter.PEAKING;
 			filter.gain.value = 1.0;
 			filter.frequency.value = this._frequencies[i];
-			filter.Q.value = 2;
+			filter.Q.value = 1;
 
 			this.input.connect(filter);
 			filter.connect(this.filtersGain);
@@ -301,7 +299,7 @@ audio.io.Equalizer = audio.io.Effect.extend({
 		var filter;
 
 		if(filter = this.filters[ filterIndex ]) {
-			filter[param].value = +value;
+			filter[param].value = value;
 		}
 	}
 });

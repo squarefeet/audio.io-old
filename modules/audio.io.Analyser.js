@@ -6,7 +6,7 @@ audio.io.Analyser = audio.io.Audio.extend({
 		this.intervalDuration = interval || 100;
 		this.callback = callback || this._io.noop;
 
-		this.analyser.smoothingTimeConstant = 0;
+		this.analyser.smoothingTimeConstant = 0.75;
 		this.analyser.fftSize = this.granularity;
 		this.data = new Uint8Array( this.analyser.frequencyBinCount );
 

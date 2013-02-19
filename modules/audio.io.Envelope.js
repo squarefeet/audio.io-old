@@ -35,7 +35,7 @@ audio.io.BasicEnvelope = audio.io.Audio.extend({
 		this.releaseTime = value;
 	},
 	setSustainLevel: function( value ) {
-		this.sustainLevel = +value || 0.5;
+		this.sustainLevel = +value || 1;
 	},
 
 	set: function( param, value ) {

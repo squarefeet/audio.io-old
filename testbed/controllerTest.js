@@ -2,11 +2,18 @@
 audio.io.initialize();
 
 
+var analyser = new audio.io.AnalyserController({
+
+});
+analyser.connect(audio.io.masterOut);
+analyser.appendTo(document.body);
+
+
 var volumeControl = new audio.io.VolumeControlController({
 	curve: 'x*x',
 	value: 100
 });
-volumeControl.connect(audio.io.masterOut);
+volumeControl.connect(analyser);
 volumeControl.appendTo(document.body);
 
 var panPotController = new audio.io.PanPotController({
@@ -57,7 +64,7 @@ midi.events.on('pitchbend', function(channel, something, value) {
 
 var eq = new audio.io.Equalizer(10);
 eq.connect(panPotController);
-eq.setPoint(4, 'gain', 50.0);
+// eq.setPoint(5, 'gain', -50.0);
 
 var utility = new audio.io.Utility();
 utility.connect( eq );
@@ -67,19 +74,19 @@ utility.setRightPhase(true);
 var reverb = new audio.io.Reverb(null, 50);
 reverb.connect( utility );
 
-var delay = new audio.io.StereoDelay(0.7, 0.2, 0.4, 50);
+var delay = new audio.io.StereoDelay(0.7, 0.2, 0.8, 0);
 delay.connect( reverb );
 
-var ringmod = new audio.io.RingMod( 20, 50);
+var ringmod = new audio.io.RingMod( 5, 100);
 ringmod.connect(delay);
 
 
 
 // Lets make us a multi-osc.... ;)
 var playableOsc = new audio.io.MultiOscillator({
-	type: 'sawtooth',
-	numOscs: 1,
-	detune: 0,
+	type: 'triangle',
+	numOscs: 10,
+	detune: 100,
 	detuneType: 'center'
 });
 playableOsc.connect( ringmod );
