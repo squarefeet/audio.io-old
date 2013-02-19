@@ -2,8 +2,8 @@
 audio.io.initialize();
 
 var analyser = new audio.io.AnalyserController({
-    width: 400,
-    height: 100,
+    width: 500,
+    height: 150,
 
     updateRate: 20,
     granularity: 2048,
@@ -11,10 +11,10 @@ var analyser = new audio.io.AnalyserController({
 
     frequencyScaling: 'log',
     dBScaling: 'linear',
-    display: 'bar',
+    display: 'line',
     drawPeak: true,
     mindB: -192,
-    maxdB: 2,
+    maxdB: 40,
 
     backgroundColor: 'rgba(50, 50, 50, 1)',
     bandColor: 'rgba(237, 112, 32, 1)',
@@ -30,7 +30,7 @@ analyser.appendTo(document.body);
 
 var volumeControl = new audio.io.VolumeControlController({
 	curve: 'x*x',
-	value: 100
+	value: 30
 });
 volumeControl.connect(analyser);
 volumeControl.appendTo(document.body);
@@ -82,12 +82,17 @@ midi.events.on('pitchbend', function(channel, something, value) {
 });
 
 
-// var eq = new audio.io.Equalizer(10);
-// eq.connect(panPotController);
-// eq.setPoint(5, 'gain', -50.0);
+var eq = new audio.io.Equalizer(10);
+eq.connect(panPotController);
+eq.setPoint(1, 'gain', 50);
+eq.setPoint(1, 'Q', 10);
+
+eq.setPoint(2, 'gain', -50);
+eq.setPoint(2, 'Q', 100);
+
 
 var utility = new audio.io.Utility();
-utility.connect( panPotController );
+utility.connect( eq );
 utility.setLeftPhase(true);
 utility.setRightPhase(true);
 

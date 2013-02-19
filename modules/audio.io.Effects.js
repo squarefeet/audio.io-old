@@ -261,8 +261,6 @@ audio.io.Utility = audio.io.Audio.extend({
 
 
 audio.io.Equalizer = audio.io.Effect.extend({
-	_frequencies: [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000],
-
 	initialize: function(bands) {
 		this.numBands = +bands || 10;
 
@@ -272,26 +270,51 @@ audio.io.Equalizer = audio.io.Effect.extend({
 
 		this.filtersGain.gain.value = 1 / this.numBands;
 
+		this._frequencies = [];
+		this._propogateFrequencies();
+
 		this.filters = [];
 		this.createFrequencyBands();
 
 		this.setDryWet(100);
 	},
 
+	_propogateFrequencies: function() {
+		var offset = 60,
+			maxFreq = this._io.context.sampleRate / 2,
+			perStep = maxFreq / this.numBands;
+
+		for(var i = 0; i < this.numBands; ++i) {
+			this._frequencies.push( offset + (perStep * i) );
+		}
+
+		console.log(this._frequencies)
+	},
+
 	createFrequencyBands: function() {
 		var filter;
 
-		for(var i = 0, il = this.numBands; i < il; i += 1) {
+		for(var i = 0, il = this.numBands; i < il; ++i) {
 			filter = this._io.context.createBiquadFilter();
 			filter.type = filter.PEAKING;
-			filter.gain.value = 1.0;
+			filter.gain.value = 0.0;
 			filter.frequency.value = this._frequencies[i];
 			filter.Q.value = 1;
 
-			this.input.connect(filter);
-			filter.connect(this.filtersGain);
-
 			this.filters.push(filter);
+		}
+
+		for(var i = 0; i < this.numBands; ++i) {
+			if(i === 0) {
+				this.input.connect(this.filters[i]);
+			}
+			else if(i < this.numBands-2) {
+				this.filters[i-1].connect(this.filters[i]);
+			}
+			else {
+				this.filters[i-1].connect(this.filters[i]);
+				this.filters[i].connect(this.filtersGain);
+			}
 		}
 	},
 

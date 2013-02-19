@@ -88,7 +88,7 @@ audio.io.AnalyserView = audio.io.View.extend({
             ctx = this.ctx,
             length = data.length,
             bandwidth = width / this.getFreqPos(length-1),
-            bandheight = height / this.getdBPos(300),
+            bandheight = height / this.getdBPos(256),
             display = this.controller.get('display'),
             showPeaks = this.controller.get('drawPeak'),
             prevPeaks, max = Math.max,
@@ -115,7 +115,7 @@ audio.io.AnalyserView = audio.io.View.extend({
 
         for(var i = 0; i < 256; ++i) {
 
-            if(i % 64 === 0) {
+            if(i % 32 === 0) {
                 ctx.fillStyle = this.controller.get('textColor');
                 ctx.fillText(
                     (audio.io.utils.scaleNumber(i, 0, 256, mindB, maxdB) | 0) + 'dB',
