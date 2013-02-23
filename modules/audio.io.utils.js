@@ -107,6 +107,24 @@ audio.io.utils = {
 		return ((num-lowIn) / (highIn-lowIn)) * (highOut-lowOut) + lowOut;
 	},
 
+	scaleNumberExp: function(num, lowIn, highIn, lowOut, highOut, exp) {
+		if(!exp) {
+			exp = 1;
+		}
+
+		if((num - lowIn) / (highIn-lowIn) === 0) {
+			return lowOut;
+		}
+		else {
+			if((num - lowIn) / (highIn - lowIn) > 0) {
+				return ( lowOut + (highOut - lowOut) * Math.pow((num - lowIn) / (highIn - lowIn), exp) );
+			}
+			else {
+				return ( lowOut + (highOut - lowOut) * -(Math.pow(((-num+lowIn) / (highIn-lowIn)), exp)) );
+			}
+		}
+	},
+
 
 	getMIDINoteFromKey: function( key, octave ) {
 		var positionInScale = audio.io.keyboard.notes.indexOf(key);

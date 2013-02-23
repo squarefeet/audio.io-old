@@ -48,6 +48,7 @@ audio.io.AnalyserView = audio.io.View.extend({
             that.controller.set('frequencyScaling', value === 0 ? 'linear' : 'log');
         });
 
+
         // Create granularity select
         var granularityLevels = [128, 256, 512, 1024, 2048];
         this.granularitySelect = new audio.io.SelectBoxController({
@@ -59,6 +60,7 @@ audio.io.AnalyserView = audio.io.View.extend({
         this.granularitySelect.on('change:index', function(model, value) {
             that.controller.set('granularity', granularityLevels[value]);
         });
+
 
         // Create on/off toggle button
         this.onOffToggle = new audio.io.ButtonController({
@@ -240,6 +242,7 @@ audio.io.AnalyserView = audio.io.View.extend({
         if(display === 'line') {
             ctx.strokeStyle = this.controller.get('bandColor');
             ctx.beginPath();
+            ctx.moveTo(0, height);
         }
 
         for(var i = 0; i < length; ++i) {
@@ -254,12 +257,7 @@ audio.io.AnalyserView = audio.io.View.extend({
 
             // Draw line point
             if(display === 'line') {
-                if(i === 0) {
-                    ctx.moveTo(logValue*bandwidth, height);
-                }
-                else {
-                    ctx.lineTo(logValue*bandwidth, height-(logdB*bandheight));
-                }
+                ctx.lineTo(logValue*bandwidth, height-(logdB*bandheight));
             }
 
             // Or draw a bar.
@@ -279,6 +277,7 @@ audio.io.AnalyserView = audio.io.View.extend({
         if(showPeaks) {
             ctx.strokeStyle = this.controller.get('peakColor');
             ctx.beginPath();
+            ctx.moveTo(0, height);
 
             for(var i = 0; i < length; ++i) {
                 value = prevPeaks[i];
@@ -287,12 +286,8 @@ audio.io.AnalyserView = audio.io.View.extend({
                 logdB = this.getdBPos(value);
 
                 // Draw line point
-                if(i === 0) {
-                    ctx.moveTo(logValue*bandwidth, height);
-                }
-                else {
-                    ctx.lineTo(logValue*bandwidth, height-(logdB*bandheight));
-                }
+                ctx.lineTo(logValue*bandwidth, height-(logdB*bandheight));
+
             }
 
             ctx.stroke();

@@ -40,6 +40,8 @@ audio.io.AnalyserController = audio.io.Controller.extend({
 
 		this.model.on('change:active', function(model, value) {
 			if(value) {
+				that.node.data = new Uint8Array( that.node.analyser.frequencyBinCount );
+				that.model.attributes.peaks = null;
 				that.node.start();
 			}
 			else {
