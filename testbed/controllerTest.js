@@ -11,7 +11,7 @@ var analyser = new audio.io.AnalyserController({
 
     frequencyScaling: 'log',
     dBScaling: 'linear',
-    display: 'line',
+    display: 'bar',
     drawPeak: true,
     mindB: -192,
     maxdB: 40,

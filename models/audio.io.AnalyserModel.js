@@ -46,7 +46,9 @@ audio.io.AnalyserModel = audio.io.Model.extend({
         accentuatedBarColor: 'rgba(100, 100, 100, 1)',
 
         // Color for the frequency text.
-        textColor: 'rgba(150, 150, 150, 1)'
+        textColor: 'rgba(150, 150, 150, 1)',
+
+        active: true
     },
 
     initialize: function() {

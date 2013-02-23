@@ -20,6 +20,7 @@ audio.io.AnalyserView = audio.io.View.extend({
     },
 
     render: function() {
+        this.onOffToggle.appendTo(this.el);
         this.el.appendChild(this.label);
         this.el.appendChild(this.canvas);
 
@@ -31,11 +32,9 @@ audio.io.AnalyserView = audio.io.View.extend({
 
     createElements: function() {
         var width = this.controller.get('width'),
-            fontSize = Math.max(Math.floor(width / 2) - 2, 10),
             that = this;
 
         this.label = document.createElement('p');
-        this.label.style.fontSize = fontSize + 'px';
         this.label.style.width = width + 'px';
 
         // Create freq scale select
@@ -59,6 +58,16 @@ audio.io.AnalyserView = audio.io.View.extend({
 
         this.granularitySelect.on('change:index', function(model, value) {
             that.controller.set('granularity', granularityLevels[value]);
+        });
+
+        // Create on/off toggle button
+        this.onOffToggle = new audio.io.ButtonController({
+            label: '',
+            value: 'On',
+            active: true
+        });
+        this.onOffToggle.on('change:active', function(model, value) {
+            that.controller.set('active', value);
         });
     },
 
@@ -115,7 +124,9 @@ audio.io.AnalyserView = audio.io.View.extend({
             height = this.canvas.height,
             ctx = this.ctx,
             length = data.length,
-            bandwidth = width / this.getFreqPos(length-1),
+            bandwidth = width / this.getFreqPos(1024),
+            lineBandwidth = width / this.getFreqPos(1024),
+            bandwidthDiff = 1024 / length,
             bandheight = height / this.getdBPos(256),
             display = this.controller.get('display'),
             showPeaks = this.controller.get('drawPeak'),
@@ -127,7 +138,7 @@ audio.io.AnalyserView = audio.io.View.extend({
             dBStepSize = (height / dBRange) | 0,
 
             maxFreq = audio.io.context.sampleRate / 2,
-            frequencyBinSize = maxFreq / length,
+            frequencyBinSize = maxFreq / 1024,
             currFreq;
 
 
@@ -164,25 +175,25 @@ audio.io.AnalyserView = audio.io.View.extend({
             tenKCount = 0,
             twentyKCount = 0;
 
-        for(var i = 0; i < length; ++i) {
+        for(var i = 0; i < 1024; ++i) {
             currFreq = frequencyBinSize * i;
 
             if(currFreq < 100) {
-                ctx.fillRect(this.getFreqPos(i) * bandwidth, 0, 1, height);
+                ctx.fillRect(this.getFreqPos(i) * lineBandwidth, 0, 1, height);
             }
             else if(currFreq < 1000) {
                 if(oneKCount % 5 === 0) {
                     if(oneKCount === 0) {
                         ctx.fillStyle = this.controller.get('textColor');
-                        ctx.fillText(parseInt(currFreq) + 'hz', this.getFreqPos(i) * bandwidth + 2, 10);
+                        ctx.fillText(parseInt(currFreq) + 'hz', this.getFreqPos(i) * lineBandwidth + 2, 10);
 
                         ctx.fillStyle = this.controller.get('accentuatedBarColor');
-                        ctx.fillRect(this.getFreqPos(i) * bandwidth, 0, 1, height);
+                        ctx.fillRect(this.getFreqPos(i) * lineBandwidth, 0, 1, height);
 
                         ctx.fillStyle = this.controller.get('barColor');
                     }
                     else {
-                        ctx.fillRect(this.getFreqPos(i) * bandwidth, 0, 1, height);
+                        ctx.fillRect(this.getFreqPos(i) * lineBandwidth, 0, 1, height);
                     }
                 }
                 ++oneKCount;
@@ -192,15 +203,15 @@ audio.io.AnalyserView = audio.io.View.extend({
                 if(tenKCount % 50 === 0) {
                     if(tenKCount === 0) {
                         ctx.fillStyle = this.controller.get('textColor');
-                        ctx.fillText(parseInt(currFreq/1000) + 'khz', this.getFreqPos(i) * bandwidth + 2, 10);
+                        ctx.fillText(parseInt(currFreq/1000) + 'khz', this.getFreqPos(i) * lineBandwidth + 2, 10);
 
                         ctx.fillStyle = this.controller.get('accentuatedBarColor');
-                        ctx.fillRect(this.getFreqPos(i) * bandwidth, 0, 1, height);
+                        ctx.fillRect(this.getFreqPos(i) * lineBandwidth, 0, 1, height);
 
                         ctx.fillStyle = this.controller.get('barColor');
                     }
                     else {
-                        ctx.fillRect(this.getFreqPos(i) * bandwidth, 0, 1, height);
+                        ctx.fillRect(this.getFreqPos(i) * lineBandwidth, 0, 1, height);
                     }
                 }
                 ++tenKCount;
@@ -210,21 +221,20 @@ audio.io.AnalyserView = audio.io.View.extend({
                 if(twentyKCount % 100 === 0) {
                     if(twentyKCount === 0) {
                         ctx.fillStyle = this.controller.get('textColor');
-                        ctx.fillText(parseInt(currFreq/1000) + 'khz', this.getFreqPos(i) * bandwidth + 2, 10);
+                        ctx.fillText(parseInt(currFreq/1000) + 'khz', this.getFreqPos(i) * lineBandwidth + 2, 10);
 
                         ctx.fillStyle = this.controller.get('accentuatedBarColor');
-                        ctx.fillRect(this.getFreqPos(i) * bandwidth, 0, 1, height);
+                        ctx.fillRect(this.getFreqPos(i) * lineBandwidth, 0, 1, height);
 
                         ctx.fillStyle = this.controller.get('barColor');
                     }
                     else {
-                        ctx.fillRect(this.getFreqPos(i) * bandwidth, 0, 1, height);
+                        ctx.fillRect(this.getFreqPos(i) * lineBandwidth, 0, 1, height);
                     }
                 }
                 ++twentyKCount;
             }
         }
-
 
         // Draw the actual data
         if(display === 'line') {
@@ -239,7 +249,7 @@ audio.io.AnalyserView = audio.io.View.extend({
                 prevPeaks[i] = max(value, prevPeaks[i]);
             }
 
-            logValue = this.getFreqPos(i);
+            logValue = this.getFreqPos(i * bandwidthDiff);
             logdB = this.getdBPos(value);
 
             // Draw line point
@@ -273,7 +283,7 @@ audio.io.AnalyserView = audio.io.View.extend({
             for(var i = 0; i < length; ++i) {
                 value = prevPeaks[i];
 
-                logValue = this.getFreqPos(i);
+                logValue = this.getFreqPos(i * bandwidthDiff);
                 logdB = this.getdBPos(value);
 
                 // Draw line point
