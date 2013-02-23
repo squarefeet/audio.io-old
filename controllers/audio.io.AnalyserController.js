@@ -31,5 +31,10 @@ audio.io.AnalyserController = audio.io.Controller.extend({
 		this.view.render();
 
 		this.node.start();
+
+		this.model.on('change:granularity', function(model, value) {
+			that.node.analyser.fftSize = value;
+			that.node.data = new Uint8Array( that.node.analyser.frequencyBinCount );
+		});
 	}
 });

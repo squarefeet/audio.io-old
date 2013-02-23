@@ -22,16 +22,44 @@ audio.io.AnalyserView = audio.io.View.extend({
     render: function() {
         this.el.appendChild(this.label);
         this.el.appendChild(this.canvas);
+
+        this.freqSelect.appendTo(this.el);
+        this.granularitySelect.appendTo(this.el);
+
         return this;
     },
 
     createElements: function() {
         var width = this.controller.get('width'),
-            fontSize = Math.max(Math.floor(width / 2) - 2, 10);
+            fontSize = Math.max(Math.floor(width / 2) - 2, 10),
+            that = this;
 
         this.label = document.createElement('p');
         this.label.style.fontSize = fontSize + 'px';
         this.label.style.width = width + 'px';
+
+        // Create freq scale select
+        this.freqSelect = new audio.io.SelectBoxController({
+            label: 'Frequency scaling',
+            options: ['linear', 'log'],
+            index: this.controller.get('frequencyScaling') === 'linear' ? 0 : 1
+        });
+
+        this.freqSelect.on('change:index', function(model, value) {
+            that.controller.set('frequencyScaling', value === 0 ? 'linear' : 'log');
+        });
+
+        // Create granularity select
+        var granularityLevels = [128, 256, 512, 1024, 2048];
+        this.granularitySelect = new audio.io.SelectBoxController({
+            label: 'Granularity',
+            options: granularityLevels,
+            index: granularityLevels.indexOf( this.controller.get('granularity') )
+        });
+
+        this.granularitySelect.on('change:index', function(model, value) {
+            that.controller.set('granularity', granularityLevels[value]);
+        });
     },
 
     setupCanvas: function() {

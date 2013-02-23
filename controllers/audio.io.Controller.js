@@ -59,6 +59,13 @@ audio.io.Controller.prototype = {
 	},
 	connectMod: function( modSource, targetAttribute ) {
 		return this.node.connectMod( modSource, targetAttribute );
+	},
+
+	on: function(event, fn, scope) {
+		return this.model.on(event, fn, scope);
+	},
+	off: function(event, fn, scope) {
+		return this.model.on(event, fn, scope);
 	}
 };
 
