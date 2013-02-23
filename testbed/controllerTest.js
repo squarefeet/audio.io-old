@@ -30,7 +30,7 @@ analyser.appendTo(document.body);
 
 var volumeControl = new audio.io.VolumeControlController({
 	curve: 'x*x',
-	value: 30
+	value: 50
 });
 volumeControl.connect(analyser);
 volumeControl.appendTo(document.body);
@@ -84,11 +84,11 @@ midi.events.on('pitchbend', function(channel, something, value) {
 
 var eq = new audio.io.Equalizer(10);
 eq.connect(panPotController);
-eq.setPoint(1, 'gain', 50);
-eq.setPoint(1, 'Q', 10);
+// eq.setPoint(1, 'gain', 50);
+// eq.setPoint(1, 'Q', 10);
 
-eq.setPoint(2, 'gain', -50);
-eq.setPoint(2, 'Q', 100);
+// eq.setPoint(2, 'gain', -50);
+// eq.setPoint(2, 'Q', 100);
 
 
 var utility = new audio.io.Utility();
@@ -96,10 +96,10 @@ utility.connect( eq );
 utility.setLeftPhase(true);
 utility.setRightPhase(true);
 
-var reverb = new audio.io.Reverb(null, 0);
+var reverb = new audio.io.Reverb('impulse_rev.wav', 30);
 reverb.connect( utility );
 
-var delay = new audio.io.StereoDelay(0.7, 0.2, 0.8, 0);
+var delay = new audio.io.StereoDelay(0.7, 0.2, 0.3, 0);
 delay.connect( reverb );
 
 var ringmod = new audio.io.RingMod( 5, 0);
@@ -109,9 +109,28 @@ ringmod.connect(delay);
 
 // Lets make us a multi-osc...
 var playableOsc = new audio.io.MultiOscillator({
-	type: 'sawtooth',
-	numOscs: 1,
-	detune: 0,
-	detuneType: 'center'
+	type: 'square',
+	numOscs: 2,
+	detune: 10,
+	detuneType: 'up'
 });
 playableOsc.connect( ringmod );
+
+
+
+
+// Some small views
+var select = new audio.io.SelectBoxController({
+    options: ['sine', 'square', 'sawtooth', 'triangle']
+});
+select.appendTo(document.body);
+
+var button = new audio.io.ButtonController({
+    label: 'Some label:'
+});
+button.appendTo(document.body);
+
+var range = new audio.io.HorizontalRangeController({
+
+});
+range.appendTo(document.body);
