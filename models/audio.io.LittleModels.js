@@ -31,3 +31,16 @@ audio.io.HorizontalRangeModel = audio.io.Model.extend({
         disabled: false
     }
 });
+
+audio.io.HorizontalSliderModel = audio.io.Model.extend({
+    defaults: {
+        width: 100,
+        height: 30,
+        min: 0,
+        max: 100,
+        exponent: 1,
+        label: 'Range:',
+        value: 50,
+        disabled: false
+    }
+})

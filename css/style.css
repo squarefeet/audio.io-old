@@ -5,6 +5,7 @@ button, select {
     border-radius: 0;
     padding: 3px 5px;
     text-align: center;
+    cursor: pointer;
 }
 
 button, select {
@@ -18,4 +19,32 @@ button[disabled], select[disabled] {
 }
 button.active {
     background-color: yellow;
+}
+
+
+.sliderView {}
+.sliderView > .wrapper {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #222;
+}
+.sliderView > .wrapper > .slider,
+.sliderView > .wrapper > .value {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.sliderView > .wrapper > .slider {
+    background: orange;
+    z-index: 1;
+}
+.sliderView > .wrapper > .value {
+    z-index: 2;
+    -webkit-user-select: none;
+    text-align: center;
 }

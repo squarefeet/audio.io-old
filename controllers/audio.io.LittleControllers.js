@@ -52,3 +52,22 @@ audio.io.HorizontalRangeController = audio.io.Controller.extend({
         this.model.on('change', this.view.render, this);
     }
 });
+
+
+audio.io.HorizontalSliderController = audio.io.Controller.extend({
+    initialize: function( options ) {
+        var that = this;
+
+        // Create model
+        this.setModel( audio.io.HorizontalSliderModel);
+        this.model.set(options);
+
+        // Create the view
+        this.setView( audio.io.HorizontalSliderView );
+
+        this.view.controller = this;
+        this.view.onControllerAttach();
+
+        this.model.on('change', this.view.render, this);
+    }
+});

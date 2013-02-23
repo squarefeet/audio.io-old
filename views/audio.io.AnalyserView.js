@@ -37,6 +37,7 @@ audio.io.AnalyserView = audio.io.View.extend({
         this.label = document.createElement('p');
         this.label.style.width = width + 'px';
 
+
         // Create freq scale select
         this.freqSelect = new audio.io.SelectBoxController({
             label: 'Frequency scaling',

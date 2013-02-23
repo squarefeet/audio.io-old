@@ -134,3 +134,12 @@ var range = new audio.io.HorizontalRangeController({
 
 });
 range.appendTo(document.body);
+
+
+var slider = new audio.io.HorizontalSliderController({
+    min: -50,
+    max: 50,
+    exponent: 0.5,
+    value: 0
+});
+slider.appendTo(document.body);
