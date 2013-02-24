@@ -402,3 +402,65 @@ audio.io.AnotherWaveshaper = audio.io.Waveshaper.extend({
         this.shaper.curve = this.curve;
 	}
 });
+
+
+
+audio.io.Bitcrusher = audio.io.Effect.extend({
+	initialize: function(options) {
+		this.options = {
+			samples: 2048,
+			depth: 1,
+			dryWet: 100
+		};
+
+		if(options) {
+			for(var i in options) {
+				if(this.options.hasOwnProperty(i)) {
+					this.options[i] = options[i];
+				}
+			}
+		}
+
+		this.scriptNode = this._io.context.createScriptProcessor(this.options.samples, 1, 1);
+		this.scriptNode.onaudioprocess = this.onProcess.bind(this);
+
+		this.input.connect(this.scriptNode);
+		this.scriptNode.connect(this.wet);
+		this.setDryWet(this.options.dryWet);
+	},
+
+	onProcess: function(e) {
+		var inputBuffer = e.inputBuffer.getChannelData(0),
+			outputBuffer = e.outputBuffer.getChannelData(0),
+			length = inputBuffer.length,
+			bits = this.options.depth;
+
+
+		for(var i = 0; i < length; i+=bits) {
+			outputBuffer[i] = inputBuffer[i];
+		}
+	}
+});
+
+
+audio.io.BitcrusherQuant = audio.io.Bitcrusher.extend({
+	onProcess: function(e) {
+		var phasor = 0,
+	    	last = 0,
+	    	normfreq = this._io.utils.scaleNumber(this.options.depth, 1, 16, 1, 0.01),
+	    	inputBuffer = e.inputBuffer.getChannelData(0),
+			outputBuffer = e.outputBuffer.getChannelData(0),
+			length = inputBuffer.length;
+
+		for(var i = 0; i < length; ++i) {
+			phasor = phasor + normfreq;
+
+			if (phasor >= 1.0) {
+	        	phasor = phasor - 1.0;
+	        	last = inputBuffer[i]; //quantize
+	        }
+
+			outputBuffer[i] = last; //sample and hold
+		}
+	}
+});

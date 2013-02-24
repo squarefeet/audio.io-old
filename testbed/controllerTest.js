@@ -30,7 +30,7 @@ analyser.appendTo(document.body);
 
 var volumeControl = new audio.io.VolumeControlController({
 	curve: 'x*x',
-	value: 50
+	value: 75
 });
 volumeControl.connect(analyser);
 volumeControl.appendTo(document.body);
@@ -81,10 +81,18 @@ midi.events.on('pitchbend', function(channel, something, value) {
 	panPotController.node.setPosition( audio.io.utils.scaleNumber(value, 0, 127, -50, 50) );
 });
 
-var shaper = new audio.io.Waveshaper({
-    level: 0.5
+
+var bitcrusher = new audio.io.BitcrusherQuant({
+    samples: 1024,
+    depth: 15
 });
-shaper.connect(panPotController);
+bitcrusher.connect(panPotController);
+
+var shaper = new audio.io.Waveshaper({
+    level: 8,
+    dryWet: 0
+});
+shaper.connect(bitcrusher);
 
 var eq = new audio.io.Equalizer(10);
 eq.connect(shaper);

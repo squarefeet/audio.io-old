@@ -1,5 +1,11 @@
 /** { margin: 0; padding: 0; }*/
 
+
+body {
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
 button, select {
     -webkit-appearance: none;
     border-radius: 0;
