@@ -81,15 +81,23 @@ midi.events.on('pitchbend', function(channel, something, value) {
 	panPotController.node.setPosition( audio.io.utils.scaleNumber(value, 0, 127, -50, 50) );
 });
 
+var reverb = new audio.io.Reverb('impulse_rev.wav', 50);
+reverb.connect( panPotController );
+
+var utility = new audio.io.Utility();
+utility.connect( reverb );
+// utility.setLeftPhase(false);
+// utility.setRightPhase(false);
 
 var bitcrusher = new audio.io.BitcrusherQuant({
     samples: 1024,
-    depth: 15
+    depth: 15,
+    dryWet: 100
 });
-bitcrusher.connect(panPotController);
+bitcrusher.connect(utility);
 
 var shaper = new audio.io.Waveshaper({
-    level: 8,
+    level: 0.7,
     dryWet: 0
 });
 shaper.connect(bitcrusher);
@@ -103,28 +111,21 @@ eq.connect(shaper);
 // eq.setPoint(2, 'Q', 100);
 
 
-var utility = new audio.io.Utility();
-utility.connect( eq );
-utility.setLeftPhase(true);
-utility.setRightPhase(true);
-
-var reverb = new audio.io.Reverb('impulse_rev.wav', 30);
-reverb.connect( utility );
 
 var delay = new audio.io.StereoDelay(0.7, 0.2, 0.3, 0);
-delay.connect( reverb );
+delay.connect( eq );
 
-var ringmod = new audio.io.RingMod( 5, 0);
+var ringmod = new audio.io.RingMod( 5, 100);
 ringmod.connect(delay);
 
 
 
 // Lets make us a multi-osc...
 var playableOsc = new audio.io.MultiOscillator({
-	type: 'sine',
-	numOscs: 1,
-	detune: 0,
-	detuneType: 'up'
+	type: 'sawtooth',
+	numOscs: 2,
+	detune: 10,
+	detuneType: 'center'
 });
 playableOsc.connect( ringmod );
 

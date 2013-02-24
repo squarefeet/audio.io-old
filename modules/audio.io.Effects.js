@@ -335,7 +335,7 @@ audio.io.Waveshaper = audio.io.Effect.extend({
 		this.options = {
 			min: -1,
 			max: 0.9,
-			level: 1,
+			level: 0.5,
 			samples: 2048,
 			dryWet: 100
 		};
