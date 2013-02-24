@@ -326,3 +326,79 @@ audio.io.Equalizer = audio.io.Effect.extend({
 		}
 	}
 });
+
+
+
+audio.io.Waveshaper = audio.io.Effect.extend({
+	initialize: function(options) {
+
+		this.options = {
+			min: -1,
+			max: 0.9,
+			level: 1,
+			samples: 2048,
+			dryWet: 100
+		};
+
+		if(options) {
+			for(var i in options) {
+				if(this.options.hasOwnProperty(i)) {
+					this.options[i] = options[i];
+				}
+			}
+		}
+
+		this.curve = null;
+
+		this.shaper = this._io.context.createWaveShaper();
+
+		this.createCurve();
+
+		this.input.connect(this.shaper);
+		this.shaper.connect(this.wet);
+
+		this.setDryWet(this.options.dryWet);
+	},
+
+	setLevel: function( level ) {
+		level = +level;
+		if(level <= this.options.max && level >= this.options.min) {
+			this.options.level = level;
+		}
+	},
+
+	createCurve: function() {
+		var samples = this.options.samples,
+			level = this.options.level,
+			curve = new Float32Array(this.options.samples);
+
+		var k = 2 * level / (1 - level);
+
+        for (var i = 0; i < samples; ++i) {
+            // LINEAR INTERPOLATION: x := (c - a) * (z - y) / (b - a) + y
+            // a = 0, b = 2048, z = 1, y = -1, c = i
+            var x = (i - 0) * (1 - (-1)) / (samples - 0) + (-1);
+            curve[i] = (1 + k) * x / (1 + k * Math.abs(x));
+        }
+
+        this.curve = curve;
+        this.shaper.curve = this.curve;
+	}
+});
+
+audio.io.AnotherWaveshaper = audio.io.Waveshaper.extend({
+	createCurve: function() {
+		var samples = this.options.samples,
+			level = this.options.levle,
+			curve = new Float32Array(this.options.samples),
+			x;
+
+        for (var i = 0; i < samples; ++i) {
+        	x = (i - 0) * (1 - (-1)) / (samples - 0) + (-1);
+            curve[i] = x * x * x;
+        }
+
+        this.curve = curve;
+        this.shaper.curve = this.curve;
+	}
+});

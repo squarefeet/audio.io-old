@@ -81,9 +81,13 @@ midi.events.on('pitchbend', function(channel, something, value) {
 	panPotController.node.setPosition( audio.io.utils.scaleNumber(value, 0, 127, -50, 50) );
 });
 
+var shaper = new audio.io.Waveshaper({
+    level: 0.5
+});
+shaper.connect(panPotController);
 
 var eq = new audio.io.Equalizer(10);
-eq.connect(panPotController);
+eq.connect(shaper);
 // eq.setPoint(1, 'gain', 50);
 // eq.setPoint(1, 'Q', 10);
 
@@ -109,9 +113,9 @@ ringmod.connect(delay);
 
 // Lets make us a multi-osc...
 var playableOsc = new audio.io.MultiOscillator({
-	type: 'square',
-	numOscs: 2,
-	detune: 10,
+	type: 'sine',
+	numOscs: 1,
+	detune: 0,
 	detuneType: 'up'
 });
 playableOsc.connect( ringmod );
