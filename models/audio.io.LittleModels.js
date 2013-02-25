@@ -41,6 +41,7 @@ audio.io.HorizontalSliderModel = audio.io.Model.extend({
         exponent: 1,
         label: 'Range:',
         value: 50,
+        steps: 100,
         disabled: false
     }
 })

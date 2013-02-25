@@ -2,7 +2,7 @@
 
 audio.io.DialView = audio.io.View.extend({
     tagName: 'div',
-    className: 'dial',
+    className: 'io-view io-dial',
 
     events: {
        'mousedown': 'mousedown',
@@ -80,13 +80,12 @@ audio.io.DialView = audio.io.View.extend({
     createElements: function() {
         var width = this.controller.get('width');
 
-        this.label = document.createElement('p');
-        this.value = document.createElement('p');
+        this.label = document.createElement('span');
+        this.label.className = 'label';
 
-        var fontSize = Math.max(Math.floor(width / 2) - 2, 10);
+        this.value = document.createElement('span');
+        this.value.className = 'value';
 
-
-        this.label.style.fontSize = this.value.style.fontSize = fontSize + 'px';
         this.label.style.width = this.value.style.width = width + 'px';
     },
 

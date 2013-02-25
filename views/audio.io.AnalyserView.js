@@ -1,6 +1,6 @@
 audio.io.AnalyserView = audio.io.View.extend({
     tagName: 'div',
-    className: 'analyser',
+    className: 'io-view io-analyser',
 
     onmousemove: function(e) {
         e.preventDefault();
@@ -34,8 +34,8 @@ audio.io.AnalyserView = audio.io.View.extend({
         var width = this.controller.get('width'),
             that = this;
 
-        this.label = document.createElement('p');
-        this.label.style.width = width + 'px';
+        this.label = document.createElement('span');
+        this.label.className = 'label';
 
 
         // Create freq scale select
