@@ -151,9 +151,9 @@ range.appendTo(document.body);
 
 
 var slider = new audio.io.HorizontalSliderController({
-    min: 0,
-    max: 5,
-    exponent: 2,
+    min: -192,
+    max: 0,
+    exponent: 0.5,
     steps: 100,
     value: 0,
     height: 15,

@@ -206,8 +206,8 @@ audio.io.HorizontalSliderView = audio.io.View.extend({
 
     createEvents: function() {
         this.el.addEventListener('mousedown', this.onmousedown, false);
-        document.addEventListener('mousemove', this.onmousemove, false);
-        document.addEventListener('mouseup', this.onmouseup, false);
+        this.el.addEventListener('mousemove', this.onmousemove, false);
+        this.el.addEventListener('mouseup', this.onmouseup, false);
     },
 
     createRange: function() {

@@ -49,6 +49,15 @@ audio.io.AnalyserController = audio.io.Controller.extend({
 			else {
 				that.node.stop();
 			}
-		})
+		});
+
+		this.model.on('change:mindB', function(model, value) {
+			that.model.attributes.peaks = null;
+			that.node.analyser.minDecibels = value;
+		});
+		this.model.on('change:maxdB', function(model, value) {
+			that.model.attributes.peaks = null;
+			that.node.analyser.maxDecibels = value;
+		});
 	}
 });

@@ -26,6 +26,8 @@ audio.io.AnalyserView = audio.io.View.extend({
 
         this.freqSelect.appendTo(this.el);
         this.granularitySelect.appendTo(this.el);
+        this.mindbSlider.appendTo(this.el);
+        this.maxdbSlider.appendTo(this.el);
 
         return this;
     },
@@ -71,6 +73,34 @@ audio.io.AnalyserView = audio.io.View.extend({
         });
         this.onOffToggle.on('change:active', function(model, value) {
             that.controller.set('active', value);
+        });
+
+
+        // Create dB sliders
+        this.mindbSlider = new audio.io.HorizontalSliderController({
+            min: -192,
+            max: 0,
+            exponent: 0.5,
+            steps: 100,
+            value: this.controller.get('mindB'),
+            height: 15,
+            label: 'Min dB'
+        });
+        this.mindbSlider.on('change:value', function(model, value) {
+            that.controller.set('mindB', value);
+        });
+
+        this.maxdbSlider = new audio.io.HorizontalSliderController({
+            min: -192,
+            max: this.controller.get('maxdB'),
+            exponent: 0.5,
+            steps: 100,
+            value: this.controller.get('maxdB'),
+            height: 15,
+            label: 'Max dB'
+        });
+        this.maxdbSlider.on('change:value', function(model, value) {
+            that.controller.set('maxdB', value);
         });
     },
 
@@ -143,7 +173,6 @@ audio.io.AnalyserView = audio.io.View.extend({
             maxFreq = audio.io.context.sampleRate / 2,
             frequencyBinSize = maxFreq / 1024,
             currFreq;
-
 
         if(showPeaks) {
             prevPeaks = this.controller.get('peaks') || new Uint8Array(length);
