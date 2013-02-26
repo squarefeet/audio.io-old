@@ -2,7 +2,7 @@
 audio.io.initialize();
 
 var analyser = new audio.io.AnalyserController({
-    width: 500,
+    width: 300,
     height: 150,
 
     updateRate: 20,
@@ -92,7 +92,7 @@ utility.connect( reverb );
 var bitcrusher = new audio.io.BitcrusherQuant({
     samples: 1024,
     depth: 15,
-    dryWet: 100
+    dryWet: 0
 });
 bitcrusher.connect(utility);
 
@@ -136,6 +136,9 @@ playableOsc.connect( ringmod );
 var select = new audio.io.SelectBoxController({
     options: ['sine', 'square', 'sawtooth', 'triangle']
 });
+select.on('change:index', function() {
+    playableOsc.setType(audio.io.oscTypes[select.get('index')]);
+})
 select.appendTo(document.body);
 
 var button = new audio.io.ButtonController({

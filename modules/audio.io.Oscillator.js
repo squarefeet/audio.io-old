@@ -183,12 +183,18 @@ audio.io.MultiOscillator = audio.io.Audio.extend({
 
 		this.instances = {};
 		this.instanceOrder = [];
-	},
 
+		this.setType(this.options.type);
+	},
+	setType: function( type ) {
+		// No need to do any checking here since we're now using MonoOscillator
+		// class when .start() is called.
+		this.type = type;
+	},
 	start: function( freq, velocity, delay ) {
 
 		var osc,
-			type = this.options.type,
+			type = this.type,
 			volCurve = this.options.volumeCurve,
 			detuneStep = this.options.detune / this.options.numOscs,
 			detuneStart = (this.options.detuneType === 'up' ? 0 :

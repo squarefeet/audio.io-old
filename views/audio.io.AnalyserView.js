@@ -28,6 +28,11 @@ audio.io.AnalyserView = audio.io.View.extend({
         this.granularitySelect.appendTo(this.el);
         this.mindbSlider.appendTo(this.el);
         this.maxdbSlider.appendTo(this.el);
+        this.smoothingView.appendTo(this.el);
+
+        var clear = document.createElement('div');
+        clear.className = 'clear';
+        this.el.appendChild(clear);
 
         return this;
     },
@@ -113,6 +118,19 @@ audio.io.AnalyserView = audio.io.View.extend({
             else {
                 that.controller.set('maxdB', value);
             }
+        });
+
+        this.smoothingView = new audio.io.HorizontalSliderController({
+            min: 0,
+            max: 0.95,
+            exponent: 1,
+            steps: 100,
+            value: this.controller.get('smoothing'),
+            height: 15,
+            label: 'Smoothing'
+        });
+        this.smoothingView.on('change:value', function(model, value) {
+            that.controller.set('smoothing', value);
         });
     },
 

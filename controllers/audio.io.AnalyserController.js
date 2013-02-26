@@ -59,5 +59,9 @@ audio.io.AnalyserController = audio.io.Controller.extend({
 			that.model.attributes.peaks = null;
 			that.node.analyser.maxDecibels = value;
 		});
+
+		this.model.on('change:smoothing', function(model, value) {
+			that.node.analyser.smoothingTimeConstant = value;
+		});
 	}
 });
