@@ -87,7 +87,13 @@ audio.io.AnalyserView = audio.io.View.extend({
             label: 'Min dB'
         });
         this.mindbSlider.on('change:value', function(model, value) {
-            that.controller.set('mindB', value);
+            if(value >= that.maxdbSlider.get('value')) {
+                that.controller.set('mindB', that.maxdbSlider.get('value'));
+                that.mindbSlider.set('value', that.maxdbSlider.get('value'));
+            }
+            else {
+                that.controller.set('mindB', value);
+            }
         });
 
         this.maxdbSlider = new audio.io.HorizontalSliderController({
@@ -100,7 +106,13 @@ audio.io.AnalyserView = audio.io.View.extend({
             label: 'Max dB'
         });
         this.maxdbSlider.on('change:value', function(model, value) {
-            that.controller.set('maxdB', value);
+            if(value <= that.mindbSlider.get('value')) {
+                that.controller.set('maxdB', that.mindbSlider.get('value'));
+                that.maxdbSlider.set('value', that.mindbSlider.get('value'));
+            }
+            else {
+                that.controller.set('maxdB', value);
+            }
         });
     },
 

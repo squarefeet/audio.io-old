@@ -30,7 +30,7 @@ analyser.appendTo(document.body);
 
 var volumeControl = new audio.io.VolumeControlController({
 	curve: 'x*x',
-	value: 75
+	value: 100
 });
 volumeControl.connect(analyser);
 volumeControl.appendTo(document.body);
