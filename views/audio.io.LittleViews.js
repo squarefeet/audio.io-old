@@ -226,8 +226,6 @@ audio.io.HorizontalSliderView = audio.io.View.extend({
         this.linearStep = linearStep;
 
         this.currentStep = audio.io.utils.scaleNumber(this.controller.get('value'), min, max, 0, steps);
-
-        console.log(this.currentStep)
     },
 
     onControllerAttach: function() {
