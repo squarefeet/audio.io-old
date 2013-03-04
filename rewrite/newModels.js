@@ -99,7 +99,7 @@ audio.io.LFO = audio.io.Node.extend({
 
 	stop: function( delay ) {
 		this.osc.stop( delay || 0 );
-	}
+	},
 
 	connectMod: function( mod, param ) {
 		if(param === 'frequency') {
@@ -120,21 +120,23 @@ audio.io.Envelope = audio.io.Node.extend({
 
 		// min and max values have no lower or upper bounds
 		// to allow for easy value scaling.
-		min: 0, // minimum audioParam value
-		max: 1, // maximum audioParam value
+		minLevel: 0, // minimum audioParam value
+		maxLevel: 1, // maximum audioParam value
 
 		// All time values are in seconds.
-		attackTime: 0.2,
-		decayTime: 1,
+		attackTime: 0.1,
+		decayTime: 0.1,
 		releaseTime: 0.5,
 
 		// Level values between 0 and 1.
 		attackLevel: 1, // All level values are scaled to match min and max values
-		sustainLevel: 0.5
+		sustainLevel: 0.1
 	},
 
 	initialize: function() {
 		var that = this;
+
+		_.bindAll(this);
 
 		that.startTime = 0;
 		that.length = that.get('attackTime') + that.get('decayTime');
@@ -144,8 +146,8 @@ audio.io.Envelope = audio.io.Node.extend({
 		var that = this,
 			scaleNumber = that._io.utils.scaleNumber,
 			node = that.get('audioParam'),
-			minLevel = that.get('min'),
-			maxLevel = that.get('max'),
+			minLevel = that.get('minLevel'),
+			maxLevel = that.get('maxLevel'),
 			attackTime = that.get('attackTime'),
 			decayTime = that.get('decayTime'),
 			attackLevel = scaleNumber( that.get('attackLevel'), 0, 1, minLevel, maxLevel ),
@@ -163,16 +165,18 @@ audio.io.Envelope = audio.io.Node.extend({
 	stop: function() {
 		var that = this,
 			node = that.get('audioParam'),
-			minLevel = that.get('min'),
+			minLevel = that.get('minLevel'),
 			releaseTime = that.get('releaseTime'),
 			envLength = that.startTime + that.length,
 			now = that._io.context.currentTime;
 
+		node.cancelScheduledValues( now );
+		node.setValueAtTime( node.value, now );
 		node.linearRampToValueAtTime(minLevel, now + releaseTime);
 
 		setTimeout(function() {
-			that.fire('end');
-		}, now + (releaseTime * 1000));
+			that.trigger('end');
+		}, now + (releaseTime * 1200));
 	}
 });
 
@@ -260,7 +264,7 @@ audio.io.Keyboard = audio.io.Input.extend({
 
 			that.pressedKeys.push(keyCode);
 
-			that.fire(
+			that.trigger(
 				'noteOn',
 				-1, // Channel (-1 === 'All')
 				utils.midiNoteToFreq( midiNote ),
@@ -276,16 +280,16 @@ audio.io.Keyboard = audio.io.Input.extend({
 
 		if(key > -1) {
 			key = String.fromCharCode(this.pressedKeys.splice(key, 1)[0]);
-			key = this._io.utils.getMIDINoteFromKey(key, this.octave);
+			key = this._io.utils.getMIDINoteFromKey(key, this.get('octave'));
 
-			this.fire(
+			this.trigger(
 				'noteOff',
 				-1,
 				this._io.utils.midiNoteToFreq( key ),
 				0
 			);
 
-			this.fire(
+			this.trigger(
 				'noteOn',
 				-1,
 				this._io.utils.midiNoteToFreq( key ),
@@ -367,7 +371,6 @@ audio.io.MIDI = audio.io.Input.extend({
 // A parent class for all audio-based models, such as panpots,
 // volume controls, and oscillators.
 audio.io.Audio = audio.io.Node.extend({
-
 	initialize: function() {
 		// Create in and out ports
 		var that = this,
@@ -391,14 +394,15 @@ audio.io.Audio = audio.io.Node.extend({
 			io = that._io,
 			output = that.output;
 
-		if( source instanceof io.Controller ) {
-			output.connect( source.node.input );
-		}
+		// if( source instanceof io.Controller ) {
+		// 	output.connect( source.node.input );
+		// }
 
 		// If we're dealing with an audio.io.Audio node,
 		// we know we have an input to connect to, so
 		// go ahead and do just that.
-		else if( source instanceof io.Audio ) {
+		// else
+		if( source instanceof io.Audio ) {
 			output.connect(source.input);
 		}
 
@@ -406,6 +410,8 @@ audio.io.Audio = audio.io.Node.extend({
 		else {
 			output.connect( source );
 		}
+
+		return this;
 	}
 });
 
@@ -443,7 +449,7 @@ audio.io.VolumeControl = audio.io.Audio.extend({
 		that.set('range', that.get('max') - that.get('min'));
 
 		// Set the starting level
-		that.setVolume( value );
+		that.setVolume( that.get('value') );
 
 		// Connect the input directly to the output
 		that.input.connect( that.output );
@@ -524,7 +530,7 @@ audio.io.StereoPanPot = audio.io.Audio.extend({
 		that.setPosition = that.setPosition.bind(that);
 
 		// Set the initial panning value
-		that.setPosition( value );
+		that.setPosition( that.get('value') );
 
 		// Register events
 		that.on('change:value', that.setPosition);
@@ -569,24 +575,195 @@ audio.io.StereoPanPot = audio.io.Audio.extend({
 
 
 
-// FIXME: this.
-audio.io.MonoOscillator = audio.io.Audio.extend({
-	defaults: {
-		type: 0,
-		freq: 440,
-		curve: 'x*x'
+// A one-shot oscillator class. Has built-in envelope
+// control.
+audio.io.SingleShotOscillator = audio.io.Audio.extend({
+	defaults: function() {
+		return _.extend({
+			type: 0,
+			frequency: 440,
+		}, audio.io.Envelope.prototype.defaults);
 	},
 
 	initialize: function() {
 		var that = this,
 			ctx = that._io.context;
 
+		// Call parent class's initialize fn so in and out gain nodes
+		// are created.
+		that._io.Audio.prototype.initialize.apply(that, arguments);
+
+		_.bindAll(this);
+
+		that.reset();
+
+		// Register events...
+		that.on('change:type', function(model, value) {
+			that.osc.type = value;
+		});
+
+		that.on('change:frequency', function(model, value) {
+			that.osc.frequency.value = value;
+		});
+	},
+
+	start: function(level) {
+		var that = this;
+
+		that.envelope.set('max', level);
+		that.envelope.start();
+		that.osc.start(0);
+	},
+
+	stop: function() {
+		this.envelope.stop();
+	},
+
+	end: function() {
+		this.osc.stop(0);
+	},
+
+	reset: function() {
+		var that = this,
+			ctx = that._io.context;
+
+		if(that.osc) {
+			that.osc.stop(0);
+		}
+
 		var osc = that.osc = ctx.createOscillator();
 		var merger = that.merger = ctx.createChannelMerger(2);
+		var envelope = that.envelope = new that._io.Envelope(that.attributes);
+		envelope.set('audioParam', that.output.gain);
+
 
 		// Connect the osc to L and R inputs of the merger
 		// to create a true stereo out.
 		osc.connect(merger, 0, 0);
 		osc.connect(merger, 0, 1);
+		merger.connect(that.output);
+
+		// Set properties...
+		osc.type = that.get('type');
+		osc.frequency.value = that.get('frequency');
+
+		envelope.on('end', function() {
+			that.end();
+		});
+	}
+});
+
+
+audio.io.Oscillator = audio.io.Audio.extend({
+	defaults: function() {
+		return _.extend({
+			type: 0,
+			frequency: 440,
+			polyphony: 1,
+			numVoices: 1,
+			detune: 0,
+			detunePoint: 'center', // 'center' or 'root'
+			detuneStep: null,
+		}, audio.io.Envelope.prototype.defaults);
+	},
+
+	initialize: function() {
+		var that = this;
+
+		// Call parent class's initialize fn so in and out gain nodes
+		// are created.
+		that._io.Audio.prototype.initialize.apply(that, arguments);
+
+		// Create a pool of SingleShotOscillators so we don't
+		// keep creating and destroying instances on every
+		// noteOn/noteOff.
+		// Shouldn't need to worry about passing arguments
+		// to the SingleShotOscillator constructor as we'll
+		// set properties when we get the osc out of the pool
+		that.pool = new that._io.Pool({
+			count: that.get('polyphony') * that.get('numVoices'),
+			object: that._io.SingleShotOscillator,
+		});
+
+		that.on('change:detune change:detunePoint', that.setDetuneStep, that);
+
+		that.setDetuneStep();
+
+		that.instances = {};
+		that.instanceOrder = [];
+	},
+
+	setDetuneStep: function() {
+		this.detuneStep = this.get('detune') / this.get('numVoices');
+		this.detuneStart = (this.get('detunePoint') === 'root' ?
+			0 : -((this.get('numVoices')/2) * this.detuneStep)
+		);
+	},
+
+	start: function( frequency, velocity ) {
+		var that = this,
+			numVoices = that.get('numVoices'),
+			osc;
+
+		console.log('Pool length:', this.pool.pool.length)
+
+		if(this.instanceOrder === that.get('polyphony')) {
+			this.stop( this.instanceOrder.shift() );
+		}
+		// else if(this.instances[frequency] && this.instances[frequency].length > 0) {
+		// 	console.log('already note');
+		// 	this.stop( frequency );
+		// }
+		else if(!this.instances[frequency]) {
+			this.instances[frequency] = [];
+		}
+
+
+		for(var i = 0; i < numVoices; ++i) {
+			osc = that.pool.get();
+
+			osc.set({
+				frequency: frequency,
+				type: this.get('type')
+			});
+
+			osc.osc.detune.value = this.detuneStart + (this.detuneStep * i);
+
+			osc.connect(this.output);
+
+			this.instances[frequency].push(osc);
+
+			osc.start();
+		}
+
+		this.instanceOrder.push(frequency);
+	},
+
+	stop: function( frequency ) {
+		var instance = this.instances[frequency],
+			releaseTime = this.get('releaseTime'),
+			that = this;
+
+		for(var i = 0, il = instance.length; i < il; ++i) {
+			instance[i].stop();
+		}
+
+		setTimeout(function() {
+			that.release( frequency );
+		}, releaseTime * 1050);
+	},
+
+	release: function( frequency ) {
+		var instance = this.instances[frequency],
+			that = this;
+
+		console.log('releasing:', instance.length);
+
+		for(var i = 0, il = instance.length; i < il; ++i) {
+			instance[i].reset();
+			that.pool.release(instance[i]);
+		}
+
+		this.instances[frequency].length = 0;
 	}
 });

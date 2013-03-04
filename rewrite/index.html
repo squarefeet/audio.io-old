@@ -1,0 +1,46 @@
+<body>
+	<script type="text/javascript" src="../lib/jQuery-1.9.1.js"></script>
+	<script type="text/javascript" src="../lib/underscore-1.4.4.js"></script>
+	<script type="text/javascript" src="../lib/Backbone-0.9.10.js"></script>
+	<script type="text/javascript" src="../lib/WebMIDIAPI.js"></script>
+	<script type="text/javascript" src="../modules/audio.io.js"></script>
+	<script type="text/javascript" src="../modules/audio.io.utils.js"></script>
+	<script type="text/javascript" src="audio.io.Pool.js"></script>
+	<script type="text/javascript" src="newModels.js"></script>
+
+	<script type="text/javascript">
+		audio.io.initialize();
+
+
+		var volume = new audio.io.VolumeControl({
+			value: 20
+		});
+		volume.connect(audio.io.masterOut);
+
+
+		var panPot = new audio.io.StereoPanPot({
+			value: 0
+		});
+		panPot.connect(volume);
+
+
+		var osc = new audio.io.Oscillator({
+			type: 1,
+			polyphony: 16,
+			numVoices: 1,
+			detune: 0
+		});
+		osc.connect(panPot);
+
+		var keyboard = new audio.io.Keyboard();
+		keyboard.on('noteOn', function(channel, frequency, velocity) {
+			if(velocity !== 0) {
+				osc.start(frequency, velocity);
+			}
+			else {
+				osc.stop(frequency, velocity);
+			}
+		});
+
+	</script>
+</body>
