@@ -6,7 +6,22 @@ audio.io.AnalyserView = audio.io.View.extend({
         e.preventDefault();
         e.stopPropagation();
 
-        // FIXME: display freq at mouse cursor position readout
+        if(e.target.tagName === 'CANVAS') {
+            var width = this.controller.get('width'),
+                maxFreq = audio.io.context.sampleRate/2,
+                bandwidth = width / this.getFreqPos(width),
+                numTens = maxFreq / 10,
+                linearFreq = audio.io.utils.scaleNumber(e.offsetX, 0, width, 0, maxFreq);
+
+            if(this.controller.get('frequencyScaling') === 'linear') {
+                newScaled = linearFreq;
+            }
+            else {
+                newScaled = Math.pow(10, (e.offsetX / maxFreq) * width) * e.offsetX;
+            }
+
+            // console.log(Math.pow(10, e.offsetX / numTens), newScaled)
+        }
     },
 
     initialize: function() {
@@ -146,7 +161,6 @@ audio.io.AnalyserView = audio.io.View.extend({
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     },
 
-
     logTen: function( n ) {
         return Math.log(n) / Math.LN10;
     },
@@ -188,7 +202,7 @@ audio.io.AnalyserView = audio.io.View.extend({
             ctx = this.ctx,
             length = data.length,
             bandwidth = width / this.getFreqPos(1024),
-            lineBandwidth = width / this.getFreqPos(1024),
+            lineBandwidth = bandwidth,
             bandwidthDiff = 1024 / length,
             bandheight = height / this.getdBPos(256),
             display = this.controller.get('display'),
@@ -207,7 +221,6 @@ audio.io.AnalyserView = audio.io.View.extend({
         if(showPeaks) {
             prevPeaks = this.controller.get('peaks') || new Uint8Array(length);
         }
-
 
         this.clearCanvas();
 
@@ -241,7 +254,7 @@ audio.io.AnalyserView = audio.io.View.extend({
             currFreq = frequencyBinSize * i;
 
             if(currFreq < 100) {
-                ctx.fillRect(this.getFreqPos(i) * lineBandwidth, 0, 1, height);
+                ctx.fillStyle = this.controller.get('textColor');
             }
             else if(currFreq < 1000) {
                 if(oneKCount % 5 === 0) {

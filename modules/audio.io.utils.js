@@ -125,6 +125,11 @@ audio.io.utils = {
 		}
 	},
 
+	clampNumber: function(value, min, max) {
+		var m = Math;
+		return m.min(max, m.max(min, value));
+	},
+
 
 	getMIDINoteFromKey: function( key, octave ) {
 		var positionInScale = audio.io.keyboard.notes.indexOf(key);

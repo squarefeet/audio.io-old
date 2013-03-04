@@ -34,7 +34,7 @@ audio.io.Controller = function() {
 
 audio.io.Controller.prototype = {
 	setModel: function( model, arguments ) {
-		this.model = new model( model, arguments );
+		this.model = new model( arguments );
 	},
 	setView: function( view, arguments ) {
 		this.view = new view( arguments );
