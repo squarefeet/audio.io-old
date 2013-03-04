@@ -33,7 +33,7 @@ audio.io = {
 			return;
 		}
 
-		this.context = new webkitAudioContext();
+		this.context = new context();
 		this.masterOut = this.context.destination;
 	}
 };
