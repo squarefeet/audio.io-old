@@ -3,25 +3,38 @@
 	<script type="text/javascript" src="../lib/underscore-1.4.4.js"></script>
 	<script type="text/javascript" src="../lib/Backbone-0.9.10.js"></script>
 	<script type="text/javascript" src="../lib/WebMIDIAPI.js"></script>
-	<script type="text/javascript" src="../modules/audio.io.js"></script>
-	<script type="text/javascript" src="../modules/audio.io.utils.js"></script>
+
+	<script type="text/javascript" src="audio.io.js"></script>
+	<script type="text/javascript" src="audio.io.utils.js"></script>
 	<script type="text/javascript" src="audio.io.Pool.js"></script>
-	<script type="text/javascript" src="newModels.js"></script>
+
+	<script type="text/javascript" src="audio.io.Node.js"></script>
+	<script type="text/javascript" src="audio.io.Audio.js"></script>
+	<script type="text/javascript" src="audio.io.Input.js"></script>
+
+	<script type="text/javascript" src="audio.io.Analyser.js"></script>
+	<script type="text/javascript" src="audio.io.Effects.js"></script>
+	<script type="text/javascript" src="audio.io.Envelope.js"></script>
+	<script type="text/javascript" src="audio.io.Keyboard.js"></script>
+	<script type="text/javascript" src="audio.io.LFO.js"></script>
+	<script type="text/javascript" src="audio.io.MIDI.js"></script>
+	<script type="text/javascript" src="audio.io.Oscillator.js"></script>
+	<script type="text/javascript" src="audio.io.StereoPanPot.js"></script>
+	<script type="text/javascript" src="audio.io.VolumeControl.js"></script>
+
 
 	<script type="text/javascript">
 		audio.io.initialize();
 
 
 		var volume = new audio.io.VolumeControl({
-			value: 20
+			value: 40
 		});
-		volume.connect(audio.io.masterOut);
 
 
 		var panPot = new audio.io.StereoPanPot({
 			value: 0
 		});
-		panPot.connect(volume);
 
 
 		var osc = new audio.io.Oscillator({
@@ -30,7 +43,9 @@
 			numVoices: 1,
 			detune: 0
 		});
-		osc.connect(panPot);
+
+		// osc.connectMod(lfo, 'detune');
+		// lfo.connectMod(lfo, 'depth');
 
 		var keyboard = new audio.io.Keyboard();
 		keyboard.on('noteOn', function(channel, frequency, velocity) {
@@ -41,6 +56,34 @@
 				osc.stop(frequency, velocity);
 			}
 		});
+
+
+		var midi = new audio.io.MIDI({
+			channel: 1
+		});
+		midi.on('noteOn', function(channel, frequency, velocity) {
+			if(velocity !== 0) {
+				osc.start(frequency, velocity);
+			}
+			else {
+				osc.stop(frequency, velocity);
+			}
+		});
+
+		var phaser = new audio.io.Phaser({
+			poles: 8,
+			frequency: 2000,
+			feedback: 0.8,
+			lfoRate: 0.5,
+			lfoDepth: 1000,
+			dryWet: 100
+		});
+
+
+		osc.connectTo(phaser)
+			.connectTo(panPot)
+			.connectTo(volume)
+			.connectTo(audio.io.masterOut);
 
 	</script>
 </body>

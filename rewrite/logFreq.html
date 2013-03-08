@@ -1,0 +1,93 @@
+<style type="text/css">
+	canvas {
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+</style>
+
+<body>
+	<canvas id="canvas" width="500" height="300"></canvas>
+
+	<script>
+		function logTen(n) {
+			return Math.log(n) / Math.LN10;
+		};
+
+		function logBase(base, n) {
+			return Math.log(n) / Math.log(base);
+		}
+
+		function pixelToFrequency(minFreq, maxFreq, x, maxX){
+		    var min = logTen(minFreq),
+				max = logTen(maxFreq),
+				range = max - min,
+				frequency = Math.pow(10, x * (range / maxX) + min);
+
+		    return frequency | 0;
+		}
+
+		function freqToX( freq, step) {
+			return (logTen( freq ) * step) | 0;
+		}
+
+
+		var canvas = document.getElementById('canvas'),
+			ctx = canvas.getContext('2d'),
+			width = canvas.width,
+			height = canvas.height,
+
+			minFreq = 0,
+			maxFreq = 22500,
+
+			minFreqLog = logTen(minFreq),
+			maxFreqLog = logTen(maxFreq),
+
+			widthLog = logTen(width),
+
+			step = width / maxFreqLog,
+
+			detailLevel = 6;
+
+
+		for(var i = minFreq; i < maxFreq; ++i) {
+			if(i <= 10) {
+				ctx.fillStyle = 'green';
+				ctx.fillRect( freqToX(i, step), 0, 1, height);
+			}
+			else if(i <= 100) {
+				ctx.fillStyle = 'green';
+				ctx.fillRect( freqToX(i, step), 0, 1, height);
+				i += detailLevel;
+			}
+			else if(i <= 1000) {
+				ctx.fillStyle = 'orange';
+				ctx.fillRect( freqToX(i, step), 0, 1, height);
+				i += detailLevel * 10;
+			}
+			else if(i <= 10000) {
+				ctx.fillStyle = 'blue';
+				ctx.fillRect( freqToX(i, step), 0, 1, height);
+				i += detailLevel * 100;
+			}
+			else if(i <= 20000) {
+				ctx.fillStyle = 'red';
+				ctx.fillRect( freqToX(i, step), 0, 1, height);
+				i += detailLevel * 300;
+			}
+			else if(i < maxFreq) {
+				ctx.fillStyle = 'black';
+				ctx.fillRect( freqToX(i, step), 0, 1, height);
+				i += detailLevel * 500;
+			}
+		}
+
+		canvas.addEventListener('mousemove', function(e) {
+			var freq = pixelToFrequency(1, maxFreq, e.offsetX, width);
+
+			console.log(freq);
+
+		}, false);
+
+
+	</script>
+
+</body>
