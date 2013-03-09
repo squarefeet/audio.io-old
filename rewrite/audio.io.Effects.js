@@ -457,3 +457,56 @@ audio.io.Phaser = audio.io.Effect.extend({
 		});
 	}
 });
+
+
+audio.io.Flanger = audio.io.Effect.extend({
+	defaults: function() {
+		return _.extend({
+			delay: 0.25,
+			feedback: 0.9,
+			frequency: 100,
+			Q: 1,
+			poles: 4,
+			lfoRate: 0.11,
+			lfoDepth: 100
+		}, audio.io.Effect.prototype.defaults);
+	},
+
+	initialize: function() {
+		var that = this;
+
+		// Call parent class's initialize fn so in and out gain nodes
+		// are created.
+		that._io.Effect.prototype.initialize.apply(that, arguments);
+
+		// Make highpass filter... like a 'clean' control
+		that.filter = new that._io.Filter({
+			type: 1,
+			frequency: that.get('frequency'),
+			Q: that.get('Q'),
+			poles: that.get('poles')
+		});
+
+
+
+		// Create the delay node
+		that.delay = that._io.context.createDelayNode();
+		that.delay.delayTime.value = that.get('delay');
+
+		that.feedback = that._io.context.createGainNode();
+		that.feedback.gain.value = that.get('feedback');
+
+		// Create an LFO instance to modulate the delay time
+		that.lfo = new that._io.LFO({
+			audioParam: that.delay.delayTime,
+			rate: that.get('lfoRate'),
+			depth: that.get('lfoDepth')
+		});
+
+		that.input.connect(that.filter.input);
+		that.filter.wet.connect(that.delay);
+		that.delay.connect(that.feedback);
+		that.feedback.connect(that.delay);
+		that.delay.connect(that.wet);
+	}
+})

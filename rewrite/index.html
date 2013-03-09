@@ -70,17 +70,18 @@
 			}
 		});
 
-		var phaser = new audio.io.Phaser({
-			poles: 8,
-			frequency: 2000,
-			feedback: 0.8,
-			lfoRate: 0.5,
-			lfoDepth: 1000,
-			dryWet: 100
+		var flanger = new audio.io.Flanger({
+			delay: 0.01,
+			poles: 2,
+			frequency: 1000,
+			feedback: 0.9,
+			lfoRate: 0.1,
+			lfoDepth: 0.001,
+			dryWet: 50
 		});
 
 
-		osc.connectTo(phaser)
+		osc.connectTo(flanger)
 			.connectTo(panPot)
 			.connectTo(volume)
 			.connectTo(audio.io.masterOut);
