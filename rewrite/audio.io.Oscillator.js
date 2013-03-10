@@ -198,3 +198,76 @@ audio.io.Oscillator = audio.io.Audio.extend({
 		}
 	}
 });
+
+
+audio.io.StringSim = audio.io.Audio.extend({
+	defaults: {
+		frequency: 440,
+		impulseDuration: 0.01,
+		damping: 1, // 1...4
+		decimation: 1,
+		bufferSize: 1024
+	},
+
+	initialize: function() {
+		var that = this;
+
+		// Call parent class's initialize fn so in and out gain nodes
+		// are created.
+		that._io.Audio.prototype.initialize.apply(that, arguments);
+
+		that.merger = that._io.context.createChannelMerger(2);
+		that.jsNode = that._io.context.createScriptProcessor(that.get('bufferSize'), 0, 1);
+		that.jsNode.onaudioprocess = that.onProcess.bind(that);
+
+		that.jsNode.connect(that.merger, 0, 0);
+		that.jsNode.connect(that.merger, 0, 1);
+
+		that.merger.connect(that.output);
+
+		that.N = Math.round( that._io.context.sampleRate / that.get('frequency'));
+		that.y = new Float32Array( that.N );
+		that.n = 0;
+		that.active = 1;
+
+		that.impulse = that.get('impulseDuration') * that._io.context.sampleRate;
+
+		that.on('change:frequency change:impulseDuration', function(model, value) {
+			that.reset();
+		});
+	},
+
+	reset: function() {
+		var that = this;
+		that.active = 0;
+		that.N = Math.round( that._io.context.sampleRate / that.get('frequency'));
+		that.y = new Float32Array( that.N );
+		that.impulse = that.get('impulseDuration') * that._io.context.sampleRate;
+		that.n = 0;
+		that.active = 1;
+	},
+
+	onProcess: function(e) {
+		if(!this.active) return;
+
+		var output = e.outputBuffer.getChannelData(0),
+			that = this,
+			damping = that.get('damping'),
+			rand = Math.random,
+			step = that.get('decimation');
+
+		for(var i = 0; i < e.outputBuffer.length; i+=step) {
+			var xn = ((that.impulse-=step) >= 0) ? rand() - 0.5 : 0;
+
+			output[i] = that.y[that.n] = xn + (that.y[that.n] + that.y[(that.n + damping) % that.N]) / 2;
+
+			if(++that.n >= that.N) {
+				that.n = 0;
+			}
+		}
+	},
+
+	start: function(frequency, velocity) {
+
+	}
+});

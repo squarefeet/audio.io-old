@@ -28,7 +28,7 @@
 
 
 		var volume = new audio.io.VolumeControl({
-			value: 40
+			value: 90
 		});
 
 
@@ -40,8 +40,16 @@
 		var osc = new audio.io.Oscillator({
 			type: 1,
 			polyphony: 16,
-			numVoices: 1,
-			detune: 0
+			numVoices: 3,
+			detune: 10
+		});
+
+		var stringSim = new audio.io.StringSim({
+			bufferSize: 2048,
+			impulseLength: 0.1,
+			active: 1,
+			frequency: 440,
+			damping: 2
 		});
 
 		// osc.connectMod(lfo, 'detune');
@@ -51,6 +59,7 @@
 		keyboard.on('noteOn', function(channel, frequency, velocity) {
 			if(velocity !== 0) {
 				osc.start(frequency, velocity);
+				stringSim.set('frequency', frequency);
 			}
 			else {
 				osc.stop(frequency, velocity);
@@ -64,24 +73,32 @@
 		midi.on('noteOn', function(channel, frequency, velocity) {
 			if(velocity !== 0) {
 				osc.start(frequency, velocity);
+				stringSim.set('frequency', frequency);
 			}
 			else {
 				osc.stop(frequency, velocity);
 			}
 		});
 
-		var flanger = new audio.io.Flanger({
-			delay: 0.01,
-			poles: 2,
-			frequency: 1000,
+		// var flanger = new audio.io.Flanger({
+		// 	delay: 0.001,
+		// 	poles: 2,
+		// 	frequency: 100,
+		// 	feedback: 0.9,
+		// 	lfoRate: 3,
+		// 	lfoDepth: 0.01,
+		// 	dryWet: 0
+		// });
+
+		var comb = new audio.io.CombFilter({
+			frequency: 500,
+			damping: 0.7,
 			feedback: 0.9,
-			lfoRate: 0.1,
-			lfoDepth: 0.001,
-			dryWet: 50
+			Q: 1,
+			delay: 0.03
 		});
 
-
-		osc.connectTo(flanger)
+		stringSim.connectTo(comb)
 			.connectTo(panPot)
 			.connectTo(volume)
 			.connectTo(audio.io.masterOut);

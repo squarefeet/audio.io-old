@@ -509,4 +509,115 @@ audio.io.Flanger = audio.io.Effect.extend({
 		that.feedback.connect(that.delay);
 		that.delay.connect(that.wet);
 	}
-})
+});
+
+
+audio.io.Wat = audio.io.Effect.extend({
+	defaults: {
+
+	},
+
+	initialize: function() {
+		// Call parent class's initialize fn so in and out gain nodes
+		// are created.
+		this._io.Effect.prototype.initialize.apply(this, arguments);
+
+		this.jsNode = this._io.context.createScriptProcessor(256, 1, 1);
+		this.jsNode.onaudioprocess = this.onProcess.bind(this);
+
+		this.snapshot = null;
+		this.prevBuffer = null
+
+		this.input.connect(this.jsNode);
+		this.jsNode.connect(this.wet);
+
+		this.startTime = Date.now();
+
+		this.setDryWet(100);
+	},
+
+	onProcess: function(e) {
+		var inputBuffer = e.inputBuffer.getChannelData(0),
+			outputBuffer = e.outputBuffer.getChannelData(0),
+			length = inputBuffer.length,
+			max = 0;
+
+		if(Date.now() - this.startTime > 2000) {
+			console.log('yeah');
+			this.startTime = Date.now();
+			this.snapshot = inputBuffer;
+			this.prevBuffer = inputBuffer
+
+			for(var i = 0; i < inputBuffer.length; ++i) {
+				this.snapshot[length - 1 - i] = inputBuffer[i];
+			}
+
+			inputBuffer = this.snapshot;
+		}
+		else if(Date.now() - this.startTime > 1000 && this.prevBuffer) {
+			inputBuffer = this.prevBuffer;
+		}
+
+		for(var i = 0; i < length; ++i) {
+			outputBuffer[i] = inputBuffer[i];
+		}
+
+	}
+});
+
+
+audio.io.CombFilter = audio.io.Effect.extend({
+	defaults: {
+		frequency: 3000,
+		Q: 1,
+		delay: 0.027,
+		feedback: 0.84,
+		damping: 0.52
+	},
+
+	initialize: function() {
+		var that = this,
+			ctx = that._io.context;
+
+		// Call parent class's initialize fn so in and out gain nodes
+		// are created.
+		that._io.Effect.prototype.initialize.apply(that, arguments);
+
+		that.delay = ctx.createDelayNode();
+		that.filter = ctx.createBiquadFilter();
+		that.feedback = ctx.createGainNode();
+		that.damping = ctx.createGainNode();
+
+		that.input.connect(that.delay);
+		that.delay.connect(that.damping);
+		that.damping.connect(that.wet);
+
+		that.damping.connect(that.filter);
+		that.filter.connect(that.feedback);
+		that.feedback.connect(that.input);
+
+		that.delay.delayTime.value = that.get('delay');
+		that.feedback.gain.value = that.get('feedback');
+		that.damping.gain.value = that.get('damping');
+		that.filter.frequency.value = that.get('frequency');
+		that.filter.Q.value = that.get('Q');
+
+
+		// Register events...
+		that.on('change:delay', function(model, value) {
+			that.delay.delayTime.value = value;
+		});
+
+		that.on('change:feedback', function(model, value) {
+			that.feedback.gain.value = value;
+		});
+
+		that.on('change:damping', function(model, value) {
+			that.damping.gain.value = value;
+		});
+
+		that.on('change:frequency', function(model, value) {
+			that.filter.frequency.value = value;
+		});
+	}
+});
