@@ -1,0 +1,99 @@
+@import "colors";
+@import "mixins";
+
+$objectHeight: 20px;
+
+
+.object {
+	position: absolute;
+	top: -10px;
+	left: -25px;
+	-webkit-transform: translate3d(0, 0, 0);
+	min-width: 50px;
+	height: 20px;
+	background-color: $lightgrey;
+	border: 1px solid $darkgrey;
+	@include roundAll(4px);
+	z-index: 5;
+	cursor: pointer;
+
+	&.selected {
+		border: 1px solid $lightblue;
+	}
+
+	.inputs, .outputs {
+		position: absolute;
+		left: 2px;
+		height: 2px;
+		width: 100%;
+
+		& > span {
+			position: relative;
+			float: left;
+			cursor: pointer;
+			display: inline-block;
+			width: 8px;
+			margin-right: 3px;
+			height: 100%;
+			background-color: $darkgrey;
+
+			&:hover {
+				background-color: $lightblue;
+			}
+
+			&:active {
+				background-color: $lighterblue;
+			}
+		}
+	}
+
+
+	.inputs {
+		top: 0px;
+
+		& > span:hover:after {
+			position: absolute;
+			top: -25px;
+			left: 0px;
+			padding: 4px;
+			white-space: nowrap;
+			z-index: 900;
+			background-color: $darkgrey;
+			content: attr(data-help);
+			font-size: 10px;
+			color: $lightgrey;
+			@include roundAll(2px);
+		}
+	}
+
+	.outputs {
+		bottom: 0px;
+
+		& > span:hover:after {
+			position: absolute;
+			top: 18px;
+			left: 0px;
+			padding: 4px;
+			white-space: nowrap;
+			z-index: 900;
+			background-color: $darkgrey;
+			content: attr(data-help);
+			font-size: 10px;
+			color: $lightgrey;
+			@include roundAll(2px);
+		}
+	}
+
+	[contenteditable="true"], .editable {
+		margin-top: 2px;
+		padding: 0 3px 0 2px;
+		height: $objectHeight - 6px;
+		width: 100%;
+		font-size: 10px;
+	}
+
+	[contenteditable="true"] {
+		-webkit-user-select: text;
+		cursor: text;
+	}
+}

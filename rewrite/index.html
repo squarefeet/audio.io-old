@@ -1,107 +1,81 @@
-<body>
-	<script type="text/javascript" src="../lib/jQuery-1.9.1.js"></script>
-	<script type="text/javascript" src="../lib/underscore-1.4.4.js"></script>
-	<script type="text/javascript" src="../lib/Backbone-0.9.10.js"></script>
-	<script type="text/javascript" src="../lib/WebMIDIAPI.js"></script>
+<!DOCTYPE html>
 
-	<script type="text/javascript" src="audio.io.js"></script>
-	<script type="text/javascript" src="audio.io.utils.js"></script>
-	<script type="text/javascript" src="audio.io.Pool.js"></script>
+<html>
 
-	<script type="text/javascript" src="audio.io.Node.js"></script>
-	<script type="text/javascript" src="audio.io.Audio.js"></script>
-	<script type="text/javascript" src="audio.io.Input.js"></script>
+	<head>
+		<link rel="stylesheet" type="text/css" href="css/normalize.css">
+		<link rel="stylesheet" type="text/css" href="css/compiled/base.css">
+		<link rel="stylesheet" type="text/css" href="css/compiled/objects.css">
 
-	<script type="text/javascript" src="audio.io.Analyser.js"></script>
-	<script type="text/javascript" src="audio.io.Effects.js"></script>
-	<script type="text/javascript" src="audio.io.Envelope.js"></script>
-	<script type="text/javascript" src="audio.io.Keyboard.js"></script>
-	<script type="text/javascript" src="audio.io.LFO.js"></script>
-	<script type="text/javascript" src="audio.io.MIDI.js"></script>
-	<script type="text/javascript" src="audio.io.Oscillator.js"></script>
-	<script type="text/javascript" src="audio.io.StereoPanPot.js"></script>
-	<script type="text/javascript" src="audio.io.VolumeControl.js"></script>
+		<script type="text/javascript" src="../lib/jQuery-1.9.1.js"></script>
+		<script type="text/javascript" src="../lib/underscore-1.4.4.js"></script>
+		<script type="text/javascript" src="../lib/Backbone-0.9.10.js"></script>
+		<script type="text/javascript" src="../lib/WebMIDIAPI.js"></script>
 
+		<script type="text/javascript" src="audio.io.js"></script>
+		<script type="text/javascript" src="audio.io.utils.js"></script>
+		<script type="text/javascript" src="audio.io.Pool.js"></script>
 
-	<script type="text/javascript">
-		audio.io.initialize();
+		<script type="text/javascript" src="models/audio.io.Node.js"></script>
+		<script type="text/javascript" src="models/audio.io.Audio.js"></script>
+		<script type="text/javascript" src="models/audio.io.Input.js"></script>
 
-
-		var volume = new audio.io.VolumeControl({
-			value: 90
-		});
-
-
-		var panPot = new audio.io.StereoPanPot({
-			value: 0
-		});
+		<script type="text/javascript" src="models/audio.io.Analyser.js"></script>
+		<script type="text/javascript" src="models/audio.io.Effects.js"></script>
+		<script type="text/javascript" src="models/audio.io.Envelope.js"></script>
+		<script type="text/javascript" src="models/audio.io.Equalizer.js"></script>
+		<script type="text/javascript" src="models/audio.io.Keyboard.js"></script>
+		<script type="text/javascript" src="models/audio.io.LFO.js"></script>
+		<script type="text/javascript" src="models/audio.io.MIDI.js"></script>
+		<script type="text/javascript" src="models/audio.io.Oscillator.js"></script>
+		<script type="text/javascript" src="models/audio.io.StereoPanPot.js"></script>
+		<script type="text/javascript" src="models/audio.io.VolumeControl.js"></script>
 
 
-		var osc = new audio.io.Oscillator({
-			type: 1,
-			polyphony: 16,
-			numVoices: 3,
-			detune: 10
-		});
+		<script type="text/javascript" src="viewmodels/audio.io.ViewModel.js"></script>
+		<script type="text/javascript" src="views/audio.io.ui.Canvas.js"></script>
 
-		var stringSim = new audio.io.StringSim({
-			bufferSize: 2048,
-			impulseLength: 0.1,
-			active: 1,
-			frequency: 440,
-			damping: 2
-		});
+	</head>
 
-		// osc.connectMod(lfo, 'detune');
-		// lfo.connectMod(lfo, 'depth');
+	<body>
+		<div class="container fill">
+			<div class="overlay fill hidden"></div>
 
-		var keyboard = new audio.io.Keyboard();
-		keyboard.on('noteOn', function(channel, frequency, velocity) {
-			if(velocity !== 0) {
-				osc.start(frequency, velocity);
-				stringSim.set('frequency', frequency);
-			}
-			else {
-				osc.stop(frequency, velocity);
-			}
-		});
+			<div class="stage fill">
+				<div class="toolbar fillVertical">
+					<ul>
+						<li class="new" data-icon="&#x22;"></li>
+						<li class="save" data-icon="&#x21;"></li>
+						<li class="saveAs" data-icon="&#x23;"></li>
+						<li class="close" data-icon="&#x24;"></li>
+					</ul>
+
+					<ul>
+						<li class="newObject" data-icon="&#x25;"></li>
+					</ul>
+				</div>
 
 
-		var midi = new audio.io.MIDI({
-			channel: 1
-		});
-		midi.on('noteOn', function(channel, frequency, velocity) {
-			if(velocity !== 0) {
-				osc.start(frequency, velocity);
-				stringSim.set('frequency', frequency);
-			}
-			else {
-				osc.stop(frequency, velocity);
-			}
-		});
+			</div>
+		</div>
 
-		// var flanger = new audio.io.Flanger({
-		// 	delay: 0.001,
-		// 	poles: 2,
-		// 	frequency: 100,
-		// 	feedback: 0.9,
-		// 	lfoRate: 3,
-		// 	lfoDepth: 0.01,
-		// 	dryWet: 0
-		// });
 
-		var comb = new audio.io.CombFilter({
-			frequency: 500,
-			damping: 0.7,
-			feedback: 0.9,
-			Q: 1,
-			delay: 0.03
-		});
+		<script type="template" id="template_object">
+			<div class="inputs">
+				<% for(var i = 0; i < inputs.length; ++i) { %>
+					<span data-help="<%= inputs[i].help %>"></span>
+				<% } %>
+			</div>
+			<div class="outputs">
+				<% for(var i = 0; i < outputs.length; ++i) { %>
+					<span data-help="<%= outputs[i].help %>"></span>
+				<% } %>
+			</div>
+			<div class="editable" spellcheck="false"></div>
+		</script>
 
-		stringSim.connectTo(comb)
-			.connectTo(panPot)
-			.connectTo(volume)
-			.connectTo(audio.io.masterOut);
 
-	</script>
-</body>
+		<script type="text/javascript" src="js/app.js"></script>
+	</body>
+
+</html>

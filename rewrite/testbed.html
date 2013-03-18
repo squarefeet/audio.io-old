@@ -1,0 +1,114 @@
+<body>
+	<script type="text/javascript" src="../lib/jQuery-1.9.1.js"></script>
+	<script type="text/javascript" src="../lib/underscore-1.4.4.js"></script>
+	<script type="text/javascript" src="../lib/Backbone-0.9.10.js"></script>
+	<script type="text/javascript" src="../lib/WebMIDIAPI.js"></script>
+
+	<script type="text/javascript" src="audio.io.js"></script>
+	<script type="text/javascript" src="audio.io.utils.js"></script>
+	<script type="text/javascript" src="audio.io.Pool.js"></script>
+
+	<script type="text/javascript" src="models/audio.io.Node.js"></script>
+	<script type="text/javascript" src="models/audio.io.Audio.js"></script>
+	<script type="text/javascript" src="models/audio.io.Input.js"></script>
+
+	<script type="text/javascript" src="models/audio.io.Analyser.js"></script>
+	<script type="text/javascript" src="models/audio.io.Effects.js"></script>
+	<script type="text/javascript" src="models/audio.io.Envelope.js"></script>
+	<script type="text/javascript" src="models/audio.io.Equalizer.js"></script>
+	<script type="text/javascript" src="models/audio.io.Keyboard.js"></script>
+	<script type="text/javascript" src="models/audio.io.LFO.js"></script>
+	<script type="text/javascript" src="models/audio.io.MIDI.js"></script>
+	<script type="text/javascript" src="models/audio.io.Oscillator.js"></script>
+	<script type="text/javascript" src="models/audio.io.StereoPanPot.js"></script>
+	<script type="text/javascript" src="models/audio.io.VolumeControl.js"></script>
+
+
+	<script type="text/javascript">
+		audio.io.initialize();
+
+
+		var volume = new audio.io.VolumeControl({
+			value: 50
+		});
+
+
+		var panPot = new audio.io.StereoPanPot({
+			value: 0
+		});
+
+
+		var osc = new audio.io.Oscillator({
+			type: 1,
+			polyphony: 16,
+			numVoices: 3,
+			detune: 10
+		});
+
+		var stringSim = new audio.io.StringSim({
+			bufferSize: 2048,
+			impulseDuration: 0.01,
+			active: 1,
+			frequency: 440,
+			damping: 1,
+		});
+
+		// osc.connectMod(lfo, 'detune');
+		// lfo.connectMod(lfo, 'depth');
+
+		var keyboard = new audio.io.Keyboard();
+		keyboard.on('noteOn', function(channel, frequency, velocity) {
+			if(velocity !== 0) {
+				osc.start(frequency, velocity);
+				stringSim.set('frequency', frequency);
+			}
+			else {
+				osc.stop(frequency, velocity);
+			}
+		});
+
+
+		var midi = new audio.io.MIDI({
+			channel: 1
+		});
+		midi.on('noteOn', function(channel, frequency, velocity) {
+			if(velocity !== 0) {
+				osc.start(frequency, velocity);
+				stringSim.set('frequency', frequency);
+			}
+			else {
+				osc.stop(frequency, velocity);
+			}
+		});
+
+		// var flanger = new audio.io.Flanger({
+		// 	delay: 0.001,
+		// 	poles: 2,
+		// 	frequency: 100,
+		// 	feedback: 0.9,
+		// 	lfoRate: 3,
+		// 	lfoDepth: 0.01,
+		// 	dryWet: 0
+		// });
+
+		var comb = new audio.io.CombFilter({
+			frequency: 20000,
+			damping: 0.7,
+			feedback: 0.9,
+			Q: 1,
+			delay: 0.03,
+			dryWet: 100
+		});
+
+		var eq = new audio.io.Equalizer({
+			dryWet: 100
+		});
+
+
+		stringSim.connectTo(eq)
+			.connectTo(panPot)
+			.connectTo(volume)
+			.connectTo(audio.io.masterOut);
+
+	</script>
+</body>

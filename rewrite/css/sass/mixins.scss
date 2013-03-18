@@ -1,0 +1,23 @@
+@mixin roundAll($radius: 10px) {
+  border-radius: $radius;
+  -webkit-border-radius: $radius;
+}
+
+@mixin roundTop($radius: 10px) {
+  border-top-left-radius: $radius;
+  border-top-right-radius: $radius;
+  -webkit-border-top-left-radius: $radius;
+  -webkit-border-top-right-radius: $radius;
+}
+
+@mixin roundBottom($radius: 10px) {
+  border-bottom-left-radius: $radius;
+  border-bottom-right-radius: $radius;
+  -webkit-border-bottom-left-radius: $radius;
+  -webkit-border-bottom-right-radius: $radius;
+}
+
+@mixin transitionFade() {
+  transition: opacity 500ms linear;
+  -webkit-transition: opacity 500ms linear;
+}
